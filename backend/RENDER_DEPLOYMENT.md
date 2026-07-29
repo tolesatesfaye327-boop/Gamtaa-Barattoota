@@ -12,7 +12,7 @@
 
 ### 2. Create a New Web Service
 1. Click "New +" → "Web Service"
-2. Connect your GitHub repository: `tolesatesfaye327-boop/GBAAB-repo`
+2. Connect your GitHub repository: `tolesatesfaye327-boop/Gamtaa-Barattoota`
 3. Select the repository from the list
 
 ### 3. Configure the Service

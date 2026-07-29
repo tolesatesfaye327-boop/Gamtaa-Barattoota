@@ -1,9 +1,9 @@
 # GBAABW Deployment Summary
 
 ## GitHub Repository
-**New Repository:** https://github.com/tolesatesfaye327-boop/GBAAB-repo
+**Target Repository:** https://github.com/tolesatesfaye327-boop/Gamtaa-Barattoota
 
-Code has been pushed to this repository with all the latest changes including Render deployment configuration.
+Code needs to be pushed to this repository with all the latest changes including Render deployment configuration.
 
 ## Deployment Setup Complete ✅
 
@@ -18,7 +18,7 @@ Code has been pushed to this repository with all the latest changes including Re
 2. **Git Remotes**
    - `origin`: TolesaTesfaye/Gamataa-Barattoota-Ada-aa-Bargaa
    - `secondary`: tolesatesfaye327-boop/Gamataa-Barattoota-Ada-aa-Bargaa
-   - `gbaab`: tolesatesfaye327-boop/GBAAB-repo ⭐ (New - Use this for Render)
+   - `gamtaa`: tolesatesfaye327-boop/Gamtaa-Barattoota ⭐ (Use this for Render)
 
 ## Next Steps
 
@@ -26,7 +26,7 @@ Code has been pushed to this repository with all the latest changes including Re
 
 1. Go to https://render.com and sign in with GitHub
 2. Click **"New +"** → **"Web Service"**
-3. Connect repository: **`tolesatesfaye327-boop/GBAAB-repo`**
+3. Connect repository: **`tolesatesfaye327-boop/Gamtaa-Barattoota`**
 4. Configure:
    - **Name:** `gbaabw-backend`
    - **Root Directory:** `backend`
@@ -71,7 +71,7 @@ After both deployments:
 - Perfect for testing and development
 
 ### Auto-Deploy
-- Any push to `main` branch in `GBAAB-repo` triggers automatic Render deployment
+- Any push to `main` branch in `Gamtaa-Barattoota` triggers automatic Render deployment
 - Changes will be live in ~3 minutes
 
 ### Troubleshooting
@@ -85,7 +85,7 @@ If deployment fails:
 ## Repository Structure
 
 ```
-GBAAB-repo/
+Gamtaa-Barattoota/
 ├── backend/
 │   ├── src/
 │   │   └── index.ts (CORS configured for Render)
