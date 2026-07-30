@@ -4,6 +4,106 @@ import { authenticate, authorize } from "../middleware/auth.js";
 
 const router: Router = express.Router();
 
+// Seed committees (admin or superadmin)
+router.post(
+  "/seed",
+  authenticate,
+  authorize(["admin", "superadmin"]),
+  async (req: Request, res: Response) => {
+    try {
+      // Check if committees already exist
+      const existingCount = await Committee.countDocuments();
+      if (existingCount > 0) {
+        res.status(400).json({
+          message: `Database already has ${existingCount} committees. Delete them first if you want to reseed.`,
+        });
+        return;
+      }
+
+      const committees = [
+        {
+          name: "KOREE KOOLLEEJJII CI",
+          head: "Wasihun Teferi",
+          description:
+            "Barattoonni kun barattoota college computing and informatics barataniidha. Dhuguma dubbachuuf boru gama teekinoloojiin uummata keenya kan tajaajilan barattoota kana keessaa ni bahu jennee abdii qabna.",
+          color: "blue",
+          academicYear: "2017",
+          members: [
+            {
+              name: "Wasihun Teferi",
+              field: "IT",
+              year: "2nd",
+              phone: "0921323185",
+              campus: "main",
+              village: "mugher",
+              entry: "2016",
+              school: "mugher community",
+            },
+            {
+              name: "Tolesa Tesfaye",
+              field: "software",
+              year: "3rd",
+              phone: "0975863448",
+              campus: "main",
+              village: "Ejere Naga'o",
+              entry: "2015",
+              school: "Enchini 2nd school",
+            },
+          ],
+        },
+        {
+          name: "KOREE KOOLLEEJJII FAYYAA",
+          head: "Tesfaye Abebe",
+          description:
+            "Barattoonni kun amma barattoota barnoota fayyaa barataniidha. Isaanis boru gama ogummaa fayyaan ogeessota fayyaa ciccimoo fi warreen rakkina uummata isaanii furan ijoollee qaqqaalii Aanaan Ada'aa Bargaa koolleejjii kana jalaa qabduudha.",
+          color: "emerald",
+          academicYear: "2017",
+          members: [
+            {
+              name: "Tigisti Gonfa",
+              field: "Pharmacy",
+              year: "1st",
+              phone: "0923681415",
+              campus: "main",
+              village: "mugher",
+              entry: "2017",
+              school: "mugher community",
+            },
+          ],
+        },
+        {
+          name: "KOREE MOORAA TEchNO",
+          head: "Birhaanuu Galataa fi Seefuu Urge",
+          description:
+            "Barattoonni kuni injineroota warreen barumsa kamiifuu lafee dugdaa ta'an yoo ta'u, Aanaan Ada'aa Bargaa barattoota hedduu fi warreen hangafaa asi qabdi.",
+          color: "amber",
+          academicYear: "2017",
+          members: [
+            {
+              name: "Birhanuu Galata",
+              field: "Electrical",
+              year: "2nd",
+              phone: "0912720271",
+              campus: "techno",
+              village: "mugher",
+              entry: "2016",
+              school: "Reji 2nd school",
+            },
+          ],
+        },
+      ];
+
+      await Committee.insertMany(committees);
+      res.status(201).json({
+        message: `${committees.length} committees seeded successfully`,
+        count: committees.length,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to seed committees", error });
+    }
+  },
+);
+
 // Get all committees
 router.get("/", async (req: Request, res: Response) => {
   try {

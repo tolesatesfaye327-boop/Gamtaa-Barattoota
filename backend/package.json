@@ -10,6 +10,7 @@
     "start": "node dist/index.js",
     "seed": "tsx src/seed.ts",
     "seed:leadership": "tsx src/seed-leadership.ts",
+    "seed:committees": "tsx src/seed-committees.ts",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write src"
   },
