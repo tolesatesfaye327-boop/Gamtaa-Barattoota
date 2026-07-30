@@ -1,5 +1,7 @@
 import express, { Router, Request, Response } from "express";
 import { Event } from "../models/Event.js";
+import { Ticket } from "../models/Ticket.js";
+import { Payment } from "../models/Payment.js";
 import { authenticate, authorize } from "../middleware/auth.js";
 
 const router: Router = express.Router();
@@ -204,5 +206,228 @@ router.delete("/:id", authenticate, async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to delete event", error });
   }
 });
+
+// GET /api/events/:id/ticket-stats - Get ticket statistics for an event (Admin)
+router.get(
+  "/:id/ticket-stats",
+  authenticate,
+  authorize(["admin", "superadmin"]),
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+
+      const event = await Event.findById(id);
+      if (!event) {
+        res.status(404).json({ message: "Event not found" });
+        return;
+      }
+
+      // Get ticket stats
+      const totalTickets = await Ticket.countDocuments({ event: id });
+      const activeTickets = await Ticket.countDocuments({
+        event: id,
+        status: "active",
+      });
+      const usedTickets = await Ticket.countDocuments({
+        event: id,
+        status: "used",
+      });
+      const cancelledTickets = await Ticket.countDocuments({
+        event: id,
+        status: "cancelled",
+      });
+
+      // Calculate revenue
+      const tickets = await Ticket.find({ event: id }).populate("payment");
+      const totalRevenue = tickets.reduce((sum, ticket: any) => {
+        if (
+          ticket.payment &&
+          ticket.payment.status === "completed" &&
+          ticket.status !== "cancelled"
+        ) {
+          return sum + ticket.payment.amount;
+        }
+        return sum;
+      }, 0);
+
+      // Recent sales
+      const recentSales = await Ticket.find({ event: id })
+        .populate("user", "firstName lastName email")
+        .populate("payment", "amount paymentMethod")
+        .sort({ createdAt: -1 })
+        .limit(10);
+
+      res.json({
+        event: {
+          title: event.title,
+          ticketPrice: event.ticketPrice,
+          ticketsAvailable: event.ticketsAvailable,
+          ticketsSold: event.ticketsSold,
+        },
+        stats: {
+          totalTickets,
+          activeTickets,
+          usedTickets,
+          cancelledTickets,
+          availableTickets: event.ticketsAvailable - event.ticketsSold,
+          soldPercentage:
+            event.ticketsAvailable > 0
+              ? ((event.ticketsSold / event.ticketsAvailable) * 100).toFixed(2)
+              : 0,
+        },
+        revenue: {
+          totalRevenue,
+          expectedRevenue: event.ticketPrice * event.ticketsSold,
+          perTicket: event.ticketPrice,
+        },
+        recentSales,
+      });
+    } catch (error) {
+      console.error("Error fetching ticket stats:", error);
+      res.status(500).json({ message: "Failed to fetch ticket statistics", error });
+    }
+  }
+);
+
+// GET /api/events/:id/revenue - Get revenue details (Admin)
+router.get(
+  "/:id/revenue",
+  authenticate,
+  authorize(["admin", "superadmin"]),
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+
+      const event = await Event.findById(id);
+      if (!event) {
+        res.status(404).json({ message: "Event not found" });
+        return;
+      }
+
+      // Get all payments for this event's tickets
+      const tickets = await Ticket.find({ event: id }).populate("payment");
+
+      let totalRevenue = 0;
+      let completedPayments = 0;
+      let pendingPayments = 0;
+      let failedPayments = 0;
+
+      const paymentBreakdown: any = {};
+
+      tickets.forEach((ticket: any) => {
+        if (ticket.payment) {
+          const payment = ticket.payment;
+          if (payment.status === "completed" && ticket.status !== "cancelled") {
+            totalRevenue += payment.amount;
+            completedPayments++;
+
+            // Group by payment method
+            if (!paymentBreakdown[payment.paymentMethod]) {
+              paymentBreakdown[payment.paymentMethod] = {
+                count: 0,
+                amount: 0,
+              };
+            }
+            paymentBreakdown[payment.paymentMethod].count++;
+            paymentBreakdown[payment.paymentMethod].amount += payment.amount;
+          } else if (payment.status === "pending") {
+            pendingPayments++;
+          } else if (payment.status === "failed") {
+            failedPayments++;
+          }
+        }
+      });
+
+      res.json({
+        eventTitle: event.title,
+        ticketPrice: event.ticketPrice,
+        totalRevenue,
+        expectedRevenue: event.ticketPrice * event.ticketsSold,
+        payments: {
+          completed: completedPayments,
+          pending: pendingPayments,
+          failed: failedPayments,
+        },
+        paymentBreakdown,
+        revenuePerTicket: event.ticketPrice,
+      });
+    } catch (error) {
+      console.error("Error fetching revenue:", error);
+      res.status(500).json({ message: "Failed to fetch revenue data", error });
+    }
+  }
+);
+
+// POST /api/events/:id/export-tickets - Export ticket data (Admin)
+router.post(
+  "/:id/export-tickets",
+  authenticate,
+  authorize(["admin", "superadmin"]),
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { format = "json" } = req.body;
+
+      const event = await Event.findById(id);
+      if (!event) {
+        res.status(404).json({ message: "Event not found" });
+        return;
+      }
+
+      const tickets = await Ticket.find({ event: id })
+        .populate("user", "firstName lastName email phone")
+        .populate("payment", "amount status paymentMethod transactionId")
+        .sort({ createdAt: -1 });
+
+      // Format data for export
+      const exportData = tickets.map((ticket: any) => ({
+        ticketNumber: ticket.ticketNumber,
+        userName: `${ticket.user.firstName} ${ticket.user.lastName}`,
+        email: ticket.user.email,
+        phone: ticket.user.phone,
+        status: ticket.status,
+        purchaseDate: ticket.purchaseDate,
+        paymentAmount: ticket.payment?.amount,
+        paymentStatus: ticket.payment?.status,
+        paymentMethod: ticket.payment?.paymentMethod,
+        transactionId: ticket.payment?.transactionId,
+        isCheckedIn: ticket.isCheckedIn,
+        checkInDate: ticket.checkInDate,
+        hasWon: ticket.hasWon,
+        prizeWon: ticket.prizeWon,
+      }));
+
+      if (format === "csv") {
+        // Convert to CSV (simplified)
+        const headers = Object.keys(exportData[0] || {}).join(",");
+        const rows = exportData
+          .map((row) => Object.values(row).join(","))
+          .join("\n");
+        const csv = `${headers}\n${rows}`;
+
+        res.setHeader("Content-Type", "text/csv");
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename=tickets-${event.title}-${Date.now()}.csv`
+        );
+        res.send(csv);
+      } else {
+        res.json({
+          event: {
+            title: event.title,
+            date: event.date,
+            location: event.location,
+          },
+          exportDate: new Date(),
+          totalTickets: exportData.length,
+          tickets: exportData,
+        });
+      }
+    } catch (error) {
+      console.error("Error exporting tickets:", error);
+      res.status(500).json({ message: "Failed to export tickets", error });
+    }
+  }
+);
 
 export default router;

@@ -13,6 +13,12 @@ export interface IEvent extends Document {
   status: "upcoming" | "ongoing" | "completed" | "cancelled";
   maxAttendees: number;
   isPublic: boolean;
+  // Ticketing fields
+  hasTicketing: boolean;
+  ticketPrice: number;
+  ticketsAvailable: number;
+  ticketsSold: number;
+  ticketingEnabled: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -81,6 +87,27 @@ const eventSchema = new Schema<IEvent>(
     isPublic: {
       type: Boolean,
       default: true,
+    },
+    // Ticketing fields
+    hasTicketing: {
+      type: Boolean,
+      default: false,
+    },
+    ticketPrice: {
+      type: Number,
+      default: 0,
+    },
+    ticketsAvailable: {
+      type: Number,
+      default: 0,
+    },
+    ticketsSold: {
+      type: Number,
+      default: 0,
+    },
+    ticketingEnabled: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true },

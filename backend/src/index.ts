@@ -18,6 +18,10 @@ import resourceRoutes from "./routes/resources.js";
 import dashboardRoutes from "./routes/dashboard.js";
 import committeeRoutes from "./routes/committees.js";
 import studentRoutes from "./routes/students.js";
+import ticketRoutes from "./routes/tickets.js";
+import checkInRoutes from "./routes/checkin.js";
+import drawRoutes from "./routes/draw.js";
+import ticketProductRoutes from "./routes/ticketProducts.js";
 import errorHandler from "./middleware/errorHandler.js";
 
 dotenv.config();
@@ -101,6 +105,10 @@ app.use("/api/resources", resourceRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/committees", committeeRoutes);
 app.use("/api/students", studentRoutes);
+app.use("/api/tickets", ticketRoutes);
+app.use("/api/checkin", checkInRoutes);
+app.use("/api/draw", drawRoutes);
+app.use("/api/ticket-products", ticketProductRoutes);
 
 // Health check
 app.get("/api/health", (req: Request, res: Response) => {

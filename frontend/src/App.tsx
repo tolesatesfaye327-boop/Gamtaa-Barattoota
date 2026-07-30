@@ -48,6 +48,10 @@ import AdminOpportunities from "./pages/AdminOpportunities";
 import AdminContact from "./pages/AdminContact";
 import AdminStudents from "./pages/AdminStudents";
 import AdminLeadership from "./pages/AdminLeadership";
+import EventsWithTickets from "./pages/EventsWithTickets";
+import BuyTicket from "./pages/BuyTicket";
+import MyTickets from "./pages/MyTickets";
+import TicketDetails from "./pages/TicketDetails";
 
 const ADMIN_ROLES = ["superadmin", "admin"];
 
@@ -119,6 +123,33 @@ function AppRoutes() {
         <Route path="/koreewwan" element={<Koreewwan />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
+
+        {/* Ticket Routes */}
+        <Route path="/events-tickets" element={<EventsWithTickets />} />
+        <Route
+          path="/events/:eventId/buy-ticket"
+          element={
+            <PrivateRoute>
+              <BuyTicket />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/my-tickets"
+          element={
+            <PrivateRoute>
+              <MyTickets />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/my-tickets/:ticketId"
+          element={
+            <PrivateRoute>
+              <TicketDetails />
+            </PrivateRoute>
+          }
+        />
 
         {/* Member-only */}
         <Route
