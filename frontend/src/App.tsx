@@ -52,6 +52,13 @@ import EventsWithTickets from "./pages/EventsWithTickets";
 import BuyTicket from "./pages/BuyTicket";
 import MyTickets from "./pages/MyTickets";
 import TicketDetails from "./pages/TicketDetails";
+import AdminTickets from "./pages/AdminTickets";
+import QRScanner from "./pages/QRScanner";
+import LuckyDraw from "./pages/LuckyDraw";
+import AdminTicketProducts from "./pages/AdminTicketProducts";
+import Tickets from "./pages/Tickets";
+import BuyStandaloneTicket from "./pages/BuyStandaloneTicket";
+import MyPurchasedTickets from "./pages/MyPurchasedTickets";
 
 const ADMIN_ROLES = ["superadmin", "admin"];
 
@@ -109,8 +116,41 @@ function AppRoutes() {
         <Route path="/waaee" element={<Waaee />} />
         <Route path="/about" element={<Navigate to="/waaee" replace />} />
         <Route path="/service" element={<Navigate to="/waaee" replace />} />
+        
+        {/* Standalone Ticket System - Must come BEFORE /events/:id */}
+        <Route path="/tickets" element={<Tickets />} />
+        <Route
+          path="/tickets/:id/buy"
+          element={
+            <PrivateRoute>
+              <BuyStandaloneTicket />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/my-purchased-tickets"
+          element={
+            <PrivateRoute>
+              <MyPurchasedTickets />
+            </PrivateRoute>
+          }
+        />
+        
+        {/* Event-Based Ticket Routes - Must come BEFORE /events/:id */}
+        <Route path="/events-tickets" element={<EventsWithTickets />} />
+        <Route
+          path="/events/:eventId/buy-ticket"
+          element={
+            <PrivateRoute>
+              <BuyTicket />
+            </PrivateRoute>
+          }
+        />
+        
+        {/* Event Routes */}
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetail />} />
+        
         <Route path="/news" element={<News />} />
         <Route path="/news/:id" element={<NewsDetail />} />
         <Route path="/gallery" element={<GalleryPage />} />
@@ -124,16 +164,7 @@ function AppRoutes() {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
 
-        {/* Ticket Routes */}
-        <Route path="/events-tickets" element={<EventsWithTickets />} />
-        <Route
-          path="/events/:eventId/buy-ticket"
-          element={
-            <PrivateRoute>
-              <BuyTicket />
-            </PrivateRoute>
-          }
-        />
+        {/* My Tickets Routes */}
         <Route
           path="/my-tickets"
           element={
@@ -283,6 +314,38 @@ function AppRoutes() {
           element={
             <AdminRoute>
               <AdminEvents />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/tickets"
+          element={
+            <AdminRoute>
+              <AdminTickets />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/ticket-products"
+          element={
+            <AdminRoute>
+              <AdminTicketProducts />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/tickets/:eventId/scan"
+          element={
+            <AdminRoute>
+              <QRScanner />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/tickets/:eventId/draw"
+          element={
+            <AdminRoute>
+              <LuckyDraw />
             </AdminRoute>
           }
         />

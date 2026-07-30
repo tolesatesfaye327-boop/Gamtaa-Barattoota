@@ -71,7 +71,9 @@ export default function Events() {
     const fetchEvents = async () => {
       try {
         const response = await apiClient.get("/events");
-        setEvents(response.data);
+        // Filter out ticketed events - only show free events
+        const freeEvents = response.data.filter((event: any) => !event.hasTicketing);
+        setEvents(freeEvents);
       } catch (err: unknown) {
         const error = err as { response?: { data?: { message?: string } } };
         setError(

@@ -16,6 +16,7 @@ const ABOUT_LINKS = [
 
 const EXPLORE_LINKS = [
   { to: "/events", label: "Events" },
+  { to: "/tickets", label: "Tickets" },
   { to: "/news", label: "News" },
   { to: "/gallery", label: "Gallery" },
   { to: "/students", label: "Students" },
@@ -185,6 +186,8 @@ export default function Layout() {
   const manageItems = [
     { to: dashboardPath, label: "Dashboard" },
     { to: "/admin/events", label: "Event Management" },
+    { to: "/admin/tickets", label: "Event Tickets" },
+    { to: "/admin/ticket-products", label: "Ticket Products" },
     { to: "/admin/news", label: "News Management" },
     { to: "/admin/gallery", label: "Gallery Management" },
     { to: "/admin/leadership", label: "Leadership Management" },
@@ -539,6 +542,20 @@ function UserDropdown({
             Dashboard
           </Link>
           <Link
+            to="/my-purchased-tickets"
+            onClick={() => setOpen(false)}
+            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            My Tickets
+          </Link>
+          <Link
+            to="/my-tickets"
+            onClick={() => setOpen(false)}
+            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            My Event Tickets
+          </Link>
+          <Link
             to="/profile"
             onClick={() => setOpen(false)}
             className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -692,6 +709,41 @@ function MobileMenu({
                 </p>
               </div>
             </div>
+            <Link
+              to="/my-purchased-tickets"
+              onClick={closeMenu}
+              className={linkClass("/my-purchased-tickets")}
+            >
+              My Tickets
+            </Link>
+            <Link
+              to="/my-tickets"
+              onClick={closeMenu}
+              className={linkClass("/my-tickets")}
+            >
+              My Event Tickets
+            </Link>
+            <Link
+              to="/profile"
+              onClick={closeMenu}
+              className={linkClass("/profile")}
+            >
+              Profile
+            </Link>
+            <Link
+              to="/my-events"
+              onClick={closeMenu}
+              className={linkClass("/my-events")}
+            >
+              My Events
+            </Link>
+            <Link
+              to="/notifications"
+              onClick={closeMenu}
+              className={linkClass("/notifications")}
+            >
+              Notifications
+            </Link>
 
             <p className={sectionHeadingClass}>Community</p>
             <Link
@@ -750,6 +802,20 @@ function MobileMenu({
               className={linkClass("/admin/events")}
             >
               Event Management
+            </Link>
+            <Link
+              to="/admin/tickets"
+              onClick={closeMenu}
+              className={linkClass("/admin/tickets")}
+            >
+              Event Tickets
+            </Link>
+            <Link
+              to="/admin/ticket-products"
+              onClick={closeMenu}
+              className={linkClass("/admin/ticket-products")}
+            >
+              Ticket Products
             </Link>
             <Link
               to="/admin/news"

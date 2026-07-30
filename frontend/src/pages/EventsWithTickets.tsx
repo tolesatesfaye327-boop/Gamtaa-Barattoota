@@ -33,7 +33,11 @@ export default function EventsWithTickets() {
     try {
       setLoading(true);
       const response = await apiClient.get("/events");
-      setEvents(response.data);
+      // Only show events with ticketing enabled
+      const ticketedEvents = response.data.filter(
+        (event: any) => event.hasTicketing === true
+      );
+      setEvents(ticketedEvents);
     } catch (error) {
       console.error("Error fetching events:", error);
     } finally {
@@ -42,9 +46,10 @@ export default function EventsWithTickets() {
   };
 
   const filteredEvents = events.filter((event) => {
-    if (filter === "ticketed") return event.hasTicketing;
-    if (filter === "free") return !event.hasTicketing;
-    return true;
+    // All events here already have ticketing
+    if (filter === "ticketed") return event.ticketPrice < 500; // Regular price
+    if (filter === "free") return event.ticketPrice >= 500; // Premium events
+    return true; // All
   });
 
   const upcomingEvents = filteredEvents.filter(
@@ -64,19 +69,19 @@ export default function EventsWithTickets() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Upcoming Events
+          Ticketed Events
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Discover and register for upcoming events. Purchase tickets for paid events.
+          Purchase tickets for paid events. For free events, visit the Events page.
         </p>
       </div>
 
       {/* Filter Tabs */}
       <div className="flex gap-2 mb-6 overflow-x-auto">
         {[
-          { value: "all", label: "All Events" },
-          { value: "ticketed", label: "Paid Events" },
-          { value: "free", label: "Free Events" },
+          { value: "all", label: "All Ticketed Events" },
+          { value: "ticketed", label: "Regular Price" },
+          { value: "free", label: "Premium Events" },
         ].map((tab) => (
           <button
             key={tab.value}
