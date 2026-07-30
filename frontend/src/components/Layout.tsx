@@ -184,12 +184,6 @@ export default function Layout() {
 
   const manageItems = [
     { to: dashboardPath, label: "Dashboard" },
-    ...(user?.role === "superadmin"
-      ? [{ to: "/superadmin/dashboard", label: "Super Admin Dashboard" }]
-      : []),
-    ...(user?.role === "admin"
-      ? [{ to: "/admin/dashboard", label: "Admin Dashboard" }]
-      : []),
     { to: "/admin/events", label: "Event Management" },
     { to: "/admin/news", label: "News Management" },
     { to: "/admin/gallery", label: "Gallery Management" },
@@ -750,24 +744,6 @@ function MobileMenu({
             >
               Dashboard
             </Link>
-            {user.role === "superadmin" && (
-              <Link
-                to="/superadmin/dashboard"
-                onClick={closeMenu}
-                className={linkClass("/superadmin/dashboard")}
-              >
-                Super Admin Dashboard
-              </Link>
-            )}
-            {user.role === "admin" && (
-              <Link
-                to="/admin/dashboard"
-                onClick={closeMenu}
-                className={linkClass("/admin/dashboard")}
-              >
-                Admin Dashboard
-              </Link>
-            )}
             <Link
               to="/admin/events"
               onClick={closeMenu}
