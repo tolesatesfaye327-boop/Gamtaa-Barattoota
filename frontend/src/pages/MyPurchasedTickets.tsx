@@ -38,9 +38,12 @@ export default function MyPurchasedTickets() {
   const fetchTickets = async () => {
     try {
       const response = await apiClient.get("/ticket-products/my/purchases");
-      setTickets(response.data);
+      // Backend returns { tickets: [], count: number }
+      const data = response.data;
+      setTickets(Array.isArray(data) ? data : data.tickets || []);
     } catch (error) {
       console.error("Error fetching tickets:", error);
+      setTickets([]); // Set empty array on error
     } finally {
       setLoading(false);
     }

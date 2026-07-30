@@ -2,6 +2,8 @@ import express, { Router, Request, Response } from "express";
 import { TicketProduct } from "../models/TicketProduct.js";
 import { PurchasedTicket } from "../models/PurchasedTicket.js";
 import { Payment } from "../models/Payment.js";
+import { Member } from "../models/Member.js";
+import { User } from "../models/User.js";
 import { Notification } from "../models/Notification.js";
 import { authenticate, authorize } from "../middleware/auth.js";
 import { v4 as uuidv4 } from "uuid";
@@ -67,7 +69,7 @@ router.get(
   authenticate,
   async (req: Request, res: Response) => {
     try {
-      const userId = req.user?._id;
+      const userId = req.userId;
       const { status } = req.query;
 
       const filter: any = { user: userId };
@@ -126,6 +128,20 @@ router.post(
         metadata,
       } = req.body;
 
+      // Validate required fields
+      if (!title || !description || price === undefined || availableQuantity === undefined) {
+        res.status(400).json({ 
+          message: "Missing required fields: title, description, price, and availableQuantity are required" 
+        });
+        return;
+      }
+
+      // Check if user is authenticated
+      if (!req.userId) {
+        res.status(401).json({ message: "User not authenticated" });
+        return;
+      }
+
       const product = await TicketProduct.create({
         title,
         description,
@@ -137,17 +153,19 @@ router.post(
         validUntil,
         features,
         metadata,
-        createdBy: req.user?._id,
+        createdBy: req.userId,
       });
 
       res.status(201).json({
         message: "Ticket product created successfully",
         product,
       });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Failed to create ticket product", error });
+    } catch (error: any) {
+      console.error("Error creating ticket product:", error);
+      res.status(500).json({ 
+        message: "Failed to create ticket product", 
+        error: error.message || "Unknown error" 
+      });
     }
   }
 );
@@ -272,7 +290,7 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const { paymentId, quantity = 1 } = req.body;
-      const userId = req.user?._id;
+      const userId = req.userId;
       const productId = req.params.id;
 
       // Get product
@@ -296,33 +314,60 @@ router.post(
         return;
       }
 
-      // Verify payment
-      const payment = await Payment.findById(paymentId);
-      if (!payment) {
-        res.status(404).json({ message: "Payment not found" });
-        return;
-      }
-
-      if (payment.status !== "completed") {
-        res.status(400).json({
-          message: "Payment is not completed",
-        });
-        return;
-      }
-
       const totalAmount = product.price * quantity;
-      if (payment.amount !== totalAmount) {
-        res.status(400).json({
-          message: "Payment amount does not match ticket price",
+      let payment;
+
+      if (paymentId) {
+        payment = await Payment.findById(paymentId);
+        if (!payment) {
+          res.status(404).json({ message: "Payment not found" });
+          return;
+        }
+        if (payment.status !== "completed") {
+          res.status(400).json({ message: "Payment is not completed" });
+          return;
+        }
+        if (payment.amount !== totalAmount) {
+          res.status(400).json({ message: "Payment amount does not match ticket price" });
+          return;
+        }
+      } else {
+        // Auto-create payment for user
+        let member = await Member.findOne({ userId });
+        if (!member) {
+          const user = await User.findById(userId);
+          if (!user) {
+            res.status(404).json({ message: "User profile not found" });
+            return;
+          }
+          const count = await Member.countDocuments();
+          member = await Member.create({
+            userId: user._id,
+            fullName: `${user.firstName} ${user.lastName}`,
+            email: user.email,
+            phone: user.phone || "0900000000",
+            membershipNumber: `MEM-${new Date().getFullYear()}-${(count + 1).toString().padStart(4, "0")}`,
+            membershipStatus: "active",
+          });
+        }
+
+        payment = await Payment.create({
+          member: member._id,
+          amount: totalAmount,
+          currency: "ETB",
+          paymentType: "event_fee",
+          paymentMethod: "mobile_money",
+          status: "completed",
+          transactionId: `TXN-${Date.now()}`,
+          notes: `Standalone Ticket: ${product.title} (x${quantity})`,
         });
-        return;
       }
 
       // Check for duplicate purchase with same payment
       const existingTicket = await PurchasedTicket.findOne({
         ticketProduct: productId,
         user: userId,
-        payment: paymentId,
+        payment: payment._id,
       });
 
       if (existingTicket) {
@@ -341,7 +386,7 @@ router.post(
         ticketNumber,
         ticketProduct: productId,
         user: userId,
-        payment: paymentId,
+        payment: payment._id,
         qrCode: qrCodeData,
         quantity,
         totalAmount,

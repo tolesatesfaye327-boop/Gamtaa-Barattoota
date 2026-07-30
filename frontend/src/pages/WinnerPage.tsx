@@ -1,0 +1,315 @@
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import apiClient from "../services/api";
+
+interface Winner {
+  _id: string;
+  ticket: {
+    ticketNumber: string;
+  };
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  event: {
+    _id: string;
+    title: string;
+    date: string;
+    location: string;
+    image?: string;
+  };
+  prize: string;
+  prizeCategory: string;
+  drawDate: string;
+  drawRound: number;
+  claimed: boolean;
+}
+
+interface EventItem {
+  _id: string;
+  title: string;
+  date: string;
+  location: string;
+  image?: string;
+}
+
+const PRIZE_CATEGORIES = [
+  { value: "all", label: "All Prizes", emoji: "✨" },
+  { value: "grand", label: "Grand Prize", emoji: "🏆", badge: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
+  { value: "first", label: "First Prize", emoji: "🥇", badge: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
+  { value: "second", label: "Second Prize", emoji: "🥈", badge: "bg-purple-500/20 text-purple-400 border-purple-500/30" },
+  { value: "third", label: "Third Prize", emoji: "🥉", badge: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
+  { value: "consolation", label: "Consolation", emoji: "🎁", badge: "bg-gray-500/20 text-gray-400 border-gray-500/30" },
+];
+
+export default function WinnerPage() {
+  const [winners, setWinners] = useState<Winner[]>([]);
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState<string>("all");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    fetchWinnersData();
+  }, [selectedEvent, selectedCategory]);
+
+  const fetchWinnersData = async () => {
+    try {
+      setLoading(true);
+      const params: any = {};
+      if (selectedEvent !== "all") params.eventId = selectedEvent;
+      if (selectedCategory !== "all") params.prizeCategory = selectedCategory;
+
+      const response = await apiClient.get("/draw/all-winners", { params });
+      setWinners(response.data.winners || []);
+      if (response.data.events) {
+        setEvents(response.data.events);
+      }
+    } catch (error) {
+      console.error("Error fetching winners:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredWinners = winners.filter((w) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    const ticketNum = w.ticket?.ticketNumber?.toLowerCase() || "";
+    const fullName = `${w.user?.firstName || ""} ${w.user?.lastName || ""}`.toLowerCase();
+    const prizeName = w.prize?.toLowerCase() || "";
+    const eventTitle = w.event?.title?.toLowerCase() || "";
+    return (
+      ticketNum.includes(query) ||
+      fullName.includes(query) ||
+      prizeName.includes(query) ||
+      eventTitle.includes(query)
+    );
+  });
+
+  const grandWinnersCount = winners.filter((w) => w.prizeCategory === "grand").length;
+  const totalEventsWithDraws = events.length;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      {/* Hero Banner */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-purple-900/60 via-blue-900/40 to-gray-900 border-b border-gray-800">
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:16px_16px]" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 relative z-10">
+          <div className="text-center space-y-4 max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-full text-yellow-400 text-sm font-semibold animate-pulse">
+              <span>🎉</span>
+              <span>Official Event Lucky Draw Results</span>
+            </div>
+            <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight">
+              Lucky Draw <span className="bg-gradient-to-r from-yellow-400 via-amber-300 to-orange-500 bg-clip-text text-transparent">Winners</span>
+            </h1>
+            <p className="text-gray-300 text-lg sm:text-xl leading-relaxed">
+              Congratulations to all lucky draw winners! View verified winning tickets, prize details, and event announcements.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Stats Section */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-5 backdrop-blur-sm">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-gray-400 font-medium">Total Winners</span>
+              <span className="text-2xl">🎁</span>
+            </div>
+            <p className="text-3xl font-bold text-white">{winners.length}</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-yellow-600/20 to-amber-500/10 border border-yellow-500/30 rounded-xl p-5">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-yellow-400 font-medium">Grand Prizes</span>
+              <span className="text-2xl">🏆</span>
+            </div>
+            <p className="text-3xl font-bold text-white">{grandWinnersCount}</p>
+          </div>
+
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-5 backdrop-blur-sm">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-gray-400 font-medium">Events with Draws</span>
+              <span className="text-2xl">🎪</span>
+            </div>
+            <p className="text-3xl font-bold text-white">{totalEventsWithDraws}</p>
+          </div>
+
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-5 backdrop-blur-sm">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-gray-400 font-medium">Verified Tickets</span>
+              <span className="text-2xl">✅</span>
+            </div>
+            <p className="text-3xl font-bold text-green-400">100% Verified</p>
+          </div>
+        </div>
+
+        {/* Search & Filters */}
+        <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Search Input */}
+            <div className="md:col-span-1">
+              <label className="block text-xs font-medium text-gray-400 mb-1">Search</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Ticket #, winner name, prize..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+                <svg className="w-4 h-4 text-gray-500 absolute left-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Event Selector */}
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1">Filter by Event</label>
+              <select
+                value={selectedEvent}
+                onChange={(e) => setSelectedEvent(e.target.value)}
+                className="w-full px-4 py-2.5 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="all">All Events</option>
+                {events.map((evt) => (
+                  <option key={evt._id} value={evt._id}>
+                    {evt.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Category Selector */}
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1">Filter by Prize Category</label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full px-4 py-2.5 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                {PRIZE_CATEGORIES.map((cat) => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.emoji} {cat.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Winners Grid */}
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400"></div>
+          </div>
+        ) : filteredWinners.length === 0 ? (
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-12 text-center">
+            <span className="text-6xl mb-4 block">🎁</span>
+            <h3 className="text-xl font-bold text-white mb-2">No Winners Found</h3>
+            <p className="text-gray-400 text-sm max-w-md mx-auto">
+              {searchQuery || selectedEvent !== "all" || selectedCategory !== "all"
+                ? "No winners matched your search or filters. Try adjusting them."
+                : "No lucky draw winners have been drawn yet. Check back soon!"}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredWinners.map((winner) => (
+              <WinnerCard key={winner._id} winner={winner} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function WinnerCard({ winner }: { winner: Winner }) {
+  const categoryConfig = PRIZE_CATEGORIES.find((c) => c.value === winner.prizeCategory) || {
+    label: winner.prizeCategory,
+    emoji: "🎁",
+    badge: "bg-gray-500/20 text-gray-400 border-gray-500/30",
+  };
+
+  const drawDateObj = new Date(winner.drawDate);
+
+  return (
+    <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl overflow-hidden hover:border-yellow-500/50 transition-all duration-300 group flex flex-col justify-between">
+      <div>
+        {/* Event Header Banner */}
+        <div className="p-4 bg-gradient-to-r from-gray-800 via-gray-700/50 to-gray-800 border-b border-gray-700/40 flex items-center justify-between">
+          <span className={`px-2.5 py-1 text-xs font-bold rounded-lg border flex items-center gap-1.5 ${categoryConfig.badge}`}>
+            <span>{categoryConfig.emoji}</span>
+            <span>{categoryConfig.label.toUpperCase()}</span>
+          </span>
+          <span className="font-mono text-xs text-yellow-400 font-semibold bg-yellow-900/30 border border-yellow-500/30 px-2.5 py-1 rounded-md">
+            #{winner.ticket?.ticketNumber || "EVT-TICKET"}
+          </span>
+        </div>
+
+        {/* Main Content */}
+        <div className="p-5 space-y-4">
+          <div>
+            <h3 className="text-xl font-bold text-white group-hover:text-yellow-400 transition-colors">
+              {winner.prize}
+            </h3>
+            <p className="text-sm text-gray-400 mt-1">
+              Event: <span className="text-white font-medium">{winner.event?.title}</span>
+            </p>
+          </div>
+
+          <div className="p-4 bg-gray-900/50 rounded-lg border border-gray-700/30 space-y-2">
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-gray-400">Winner Name</span>
+              <span className="text-white font-semibold">
+                {winner.user?.firstName} {winner.user?.lastName}
+              </span>
+            </div>
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-gray-400">Draw Date</span>
+              <span className="text-gray-300 text-xs">
+                {drawDateObj.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </span>
+            </div>
+            {winner.event?.location && (
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-400">Venue</span>
+                <span className="text-gray-300 text-xs line-clamp-1">{winner.event.location}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Badge */}
+      <div className="px-5 py-3 bg-gray-900/40 border-t border-gray-800 flex items-center justify-between text-xs text-gray-400">
+        <span className="flex items-center gap-1 text-green-400">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          Verified Lucky Draw
+        </span>
+        {winner.claimed ? (
+          <span className="px-2 py-0.5 bg-green-900/30 text-green-400 rounded border border-green-500/30 font-medium">
+            Claimed
+          </span>
+        ) : (
+          <span className="px-2 py-0.5 bg-yellow-900/30 text-yellow-400 rounded border border-yellow-500/30 font-medium">
+            Official Winner
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}

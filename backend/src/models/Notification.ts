@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface INotification extends Document {
   recipient: mongoose.Types.ObjectId;
-  type: 'event' | 'announcement' | 'membership' | 'system' | 'reminder';
+  type: 'event' | 'announcement' | 'membership' | 'system' | 'reminder' | 'ticket' | 'winner';
   title: string;
   message: string;
   link: string;
@@ -21,7 +21,7 @@ const notificationSchema = new Schema<INotification>(
     },
     type: {
       type: String,
-      enum: ['event', 'announcement', 'membership', 'system', 'reminder'],
+      enum: ['event', 'announcement', 'membership', 'system', 'reminder', 'ticket', 'winner'],
       default: 'system',
     },
     title: {

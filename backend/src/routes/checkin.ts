@@ -41,7 +41,7 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const { qrCode } = req.body;
-      const adminId = req.user?._id;
+      const adminId = req.userId;
 
       if (!qrCode) {
         res.status(400).json({ message: "QR code is required" });
@@ -145,7 +145,7 @@ router.post(
       await Notification.create({
         recipient: ticket.user._id,
         title: "Event Check-in Successful",
-        message: `You have been checked in to ${ticket.event.title}. Enjoy the event!`,
+        message: `You have been checked in to ${(ticket.event as any).title}. Enjoy the event!`,
         type: "event",
         relatedEntity: "Event",
         relatedId: ticket.event._id,
@@ -184,7 +184,7 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const { ticketNumber, notes } = req.body;
-      const adminId = req.user?._id;
+      const adminId = req.userId;
 
       if (!ticketNumber) {
         res.status(400).json({ message: "Ticket number is required" });

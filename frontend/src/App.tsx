@@ -59,6 +59,9 @@ import AdminTicketProducts from "./pages/AdminTicketProducts";
 import Tickets from "./pages/Tickets";
 import BuyStandaloneTicket from "./pages/BuyStandaloneTicket";
 import MyPurchasedTickets from "./pages/MyPurchasedTickets";
+import WinnerPage from "./pages/WinnerPage";
+import AdminPayments from "./pages/AdminPayments";
+import MyPayments from "./pages/MyPayments";
 
 const ADMIN_ROLES = ["superadmin", "admin"];
 
@@ -116,7 +119,7 @@ function AppRoutes() {
         <Route path="/waaee" element={<Waaee />} />
         <Route path="/about" element={<Navigate to="/waaee" replace />} />
         <Route path="/service" element={<Navigate to="/waaee" replace />} />
-        
+
         {/* Standalone Ticket System - Must come BEFORE /events/:id */}
         <Route path="/tickets" element={<Tickets />} />
         <Route
@@ -129,15 +132,12 @@ function AppRoutes() {
         />
         <Route
           path="/my-purchased-tickets"
-          element={
-            <PrivateRoute>
-              <MyPurchasedTickets />
-            </PrivateRoute>
-          }
+          element={<Navigate to="/my-tickets" replace />}
         />
-        
+
         {/* Event-Based Ticket Routes - Must come BEFORE /events/:id */}
         <Route path="/events-tickets" element={<EventsWithTickets />} />
+        <Route path="/winners" element={<WinnerPage />} />
         <Route
           path="/events/:eventId/buy-ticket"
           element={
@@ -146,11 +146,11 @@ function AppRoutes() {
             </PrivateRoute>
           }
         />
-        
+
         {/* Event Routes */}
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetail />} />
-        
+
         <Route path="/news" element={<News />} />
         <Route path="/news/:id" element={<NewsDetail />} />
         <Route path="/gallery" element={<GalleryPage />} />
@@ -173,6 +173,15 @@ function AppRoutes() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/my-payments"
+          element={
+            <PrivateRoute>
+              <MyPayments />
+            </PrivateRoute>
+          }
+        />
+
         <Route
           path="/my-tickets/:ticketId"
           element={
@@ -325,6 +334,15 @@ function AppRoutes() {
             </AdminRoute>
           }
         />
+        <Route
+          path="/admin/payments"
+          element={
+            <AdminRoute>
+              <AdminPayments />
+            </AdminRoute>
+          }
+        />
+
         <Route
           path="/admin/ticket-products"
           element={

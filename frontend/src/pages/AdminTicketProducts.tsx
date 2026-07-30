@@ -89,20 +89,31 @@ export default function AdminTicketProducts() {
     setSaving(true);
     setError(null);
     setSuccess(null);
+    
     try {
+      console.log("Submitting form data:", formData);
+      
       if (editing) {
-        await apiClient.patch(`/ticket-products/${editing._id}`, formData);
+        const response = await apiClient.patch(`/ticket-products/${editing._id}`, formData);
+        console.log("Update response:", response.data);
         setSuccess("Ticket product updated successfully!");
       } else {
-        await apiClient.post("/ticket-products", formData);
+        const response = await apiClient.post("/ticket-products", formData);
+        console.log("Create response:", response.data);
         setSuccess("Ticket product created successfully!");
       }
+      
       setShowForm(false);
       setEditing(null);
-      fetchProducts();
+      setFormData(EMPTY_FORM);
+      await fetchProducts(); // Wait for products to refresh
+      
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
-      setError(error.response?.data?.message || "Failed to save ticket product");
+      console.error("Error saving ticket product:", err);
+      const error = err as { response?: { data?: { message?: string; error?: string } } };
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || "Failed to save ticket product";
+      setError(errorMessage);
+      console.error("Error details:", error.response?.data);
     } finally {
       setSaving(false);
     }

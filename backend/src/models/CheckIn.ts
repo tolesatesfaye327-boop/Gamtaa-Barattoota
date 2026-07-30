@@ -19,7 +19,6 @@ const checkInSchema = new Schema<ICheckIn>(
       type: Schema.Types.ObjectId,
       ref: "Ticket",
       required: true,
-      index: true,
     },
     event: {
       type: Schema.Types.ObjectId,

@@ -41,7 +41,7 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const { eventId, prizes, allowDuplicateWins = false } = req.body;
-      const adminId = req.user?._id;
+      const adminId = req.userId;
 
       if (!eventId || !prizes || !Array.isArray(prizes)) {
         res.status(400).json({
@@ -213,6 +213,36 @@ router.post(
   }
 );
 
+// GET /api/draw/all-winners - Get all winners across all events (Public)
+router.get("/all-winners", async (req: Request, res: Response) => {
+  try {
+    const { eventId, prizeCategory } = req.query;
+
+    const filter: any = {};
+    if (eventId) filter.event = eventId;
+    if (prizeCategory) filter.prizeCategory = prizeCategory;
+
+    const winners = await Winner.find(filter)
+      .populate("ticket", "ticketNumber")
+      .populate("user", "firstName lastName email")
+      .populate("event", "title date location image")
+      .sort({ drawDate: -1 });
+
+    const eventsWithDraws = await Event.find({
+      _id: { $in: await Winner.distinct("event") },
+    }).select("title date location image");
+
+    res.json({
+      winners,
+      events: eventsWithDraws,
+      totalWinners: winners.length,
+    });
+  } catch (error) {
+    console.error("Error fetching all winners:", error);
+    res.status(500).json({ message: "Failed to fetch winners", error });
+  }
+});
+
 // GET /api/draw/winners/:eventId - Get all winners for an event
 router.get(
   "/winners/:eventId",
@@ -256,7 +286,7 @@ router.get(
 // GET /api/draw/my-wins - Get user's winning tickets
 router.get("/my-wins", authenticate, async (req: Request, res: Response) => {
   try {
-    const userId = req.user?._id;
+    const userId = req.userId;
 
     const myWins = await Winner.find({ user: userId })
       .populate("ticket", "ticketNumber")
@@ -303,7 +333,7 @@ router.post(
         await Notification.create({
           recipient: winner.user._id,
           title: "Lucky Draw Winner!",
-          message: `Congratulations! Your ticket ${winner.ticket.ticketNumber} won ${winner.prize} in ${winner.event.title}. Please contact us to claim your prize.`,
+          message: `Congratulations! Your ticket ${(winner.ticket as any)?.ticketNumber} won ${winner.prize} in ${(winner.event as any)?.title}. Please contact us to claim your prize.`,
           type: "winner",
           relatedEntity: "Winner",
           relatedId: winner._id,
@@ -414,7 +444,7 @@ router.delete(
   async (req: Request, res: Response) => {
     try {
       const { winnerId } = req.params;
-      const adminId = req.user?._id;
+      const adminId = req.userId;
 
       const winner = await Winner.findById(winnerId);
       if (!winner) {

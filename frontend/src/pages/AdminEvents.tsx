@@ -21,6 +21,12 @@ interface Event {
   status: string;
   maxAttendees: number;
   attendees: Attendee[];
+  image?: string;
+  hasTicketing?: boolean;
+  ticketPrice?: number;
+  ticketsAvailable?: number;
+  ticketsSold?: number;
+  ticketingEnabled?: boolean;
 }
 
 const CATEGORIES = [
@@ -43,6 +49,11 @@ const EMPTY_FORM = {
   category: "conference",
   maxAttendees: 100,
   status: "upcoming",
+  image: "",
+  hasTicketing: false,
+  ticketPrice: 0,
+  ticketsAvailable: 100,
+  ticketingEnabled: true,
 };
 
 export default function AdminEvents() {
@@ -96,6 +107,11 @@ export default function AdminEvents() {
       category: event.category,
       maxAttendees: event.maxAttendees,
       status: event.status,
+      image: event.image || "",
+      hasTicketing: !!event.hasTicketing,
+      ticketPrice: event.ticketPrice || 0,
+      ticketsAvailable: event.ticketsAvailable || 100,
+      ticketingEnabled: event.ticketingEnabled !== undefined ? event.ticketingEnabled : true,
     });
     setShowForm(true);
   };
@@ -428,6 +444,91 @@ export default function AdminEvents() {
                       <option value="cancelled">Cancelled</option>
                     </select>
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                    Event Image URL
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.image}
+                    onChange={(e) =>
+                      setFormData({ ...formData, image: e.target.value })
+                    }
+                    className="w-full px-4 py-2.5 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                    placeholder="https://example.com/event-banner.jpg"
+                  />
+                </div>
+
+                {/* Ticketing Settings */}
+                <div className="p-4 bg-gray-900/60 border border-gray-700/60 rounded-xl space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-semibold text-white">Enable Event Ticketing</h4>
+                      <p className="text-xs text-gray-400">Allow users to buy digital tickets and enter lucky draw</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={formData.hasTicketing}
+                      onChange={(e) =>
+                        setFormData({ ...formData, hasTicketing: e.target.checked })
+                      }
+                      className="w-5 h-5 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {formData.hasTicketing && (
+                    <div className="pt-3 border-t border-gray-800 space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-300 mb-1">
+                            Ticket Price (ETB) *
+                          </label>
+                          <input
+                            type="number"
+                            value={formData.ticketPrice}
+                            onChange={(e) =>
+                              setFormData({ ...formData, ticketPrice: Number(e.target.value) })
+                            }
+                            className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white text-sm"
+                            min={0}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-300 mb-1">
+                            Total Tickets Available *
+                          </label>
+                          <input
+                            type="number"
+                            value={formData.ticketsAvailable}
+                            onChange={(e) =>
+                              setFormData({ ...formData, ticketsAvailable: Number(e.target.value) })
+                            }
+                            className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white text-sm"
+                            min={1}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="ticketingEnabled"
+                          checked={formData.ticketingEnabled}
+                          onChange={(e) =>
+                            setFormData({ ...formData, ticketingEnabled: e.target.checked })
+                          }
+                          className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600"
+                        />
+                        <label htmlFor="ticketingEnabled" className="text-xs text-gray-300">
+                          Active (Allow public purchase now)
+                        </label>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-3 pt-2">

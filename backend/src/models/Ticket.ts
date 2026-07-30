@@ -23,7 +23,6 @@ const ticketSchema = new Schema<ITicket>(
       type: String,
       required: true,
       unique: true,
-      index: true,
     },
     event: {
       type: Schema.Types.ObjectId,
@@ -80,7 +79,5 @@ const ticketSchema = new Schema<ITicket>(
 
 // Index for efficient queries
 ticketSchema.index({ event: 1, user: 1 });
-ticketSchema.index({ ticketNumber: 1 });
-ticketSchema.index({ qrCode: 1 });
 
 export const Ticket = mongoose.model<ITicket>("Ticket", ticketSchema);

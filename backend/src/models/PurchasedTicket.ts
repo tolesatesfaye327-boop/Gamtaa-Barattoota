@@ -24,7 +24,6 @@ const purchasedTicketSchema = new Schema<IPurchasedTicket>(
       type: String,
       required: true,
       unique: true,
-      index: true,
     },
     ticketProduct: {
       type: Schema.Types.ObjectId,
@@ -85,8 +84,6 @@ const purchasedTicketSchema = new Schema<IPurchasedTicket>(
 
 // Index for efficient queries
 purchasedTicketSchema.index({ ticketProduct: 1, user: 1 });
-purchasedTicketSchema.index({ ticketNumber: 1 });
-purchasedTicketSchema.index({ qrCode: 1 });
 purchasedTicketSchema.index({ status: 1 });
 
 export const PurchasedTicket = mongoose.model<IPurchasedTicket>(

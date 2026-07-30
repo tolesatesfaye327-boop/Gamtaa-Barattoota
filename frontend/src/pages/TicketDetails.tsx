@@ -164,8 +164,16 @@ export default function TicketDetails() {
         Back to My Tickets
       </button>
 
+      <style>{`
+        @media print {
+          body { background: white !important; color: black !important; }
+          .print\\:hidden, nav, footer, header { display: none !important; }
+          .print-card { box-shadow: none !important; border: 2px solid #e5e7eb !important; page-break-inside: avoid; margin: 0 auto; }
+        }
+      `}</style>
+
       {/* Digital Ticket */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-6 print-card">
         {/* Header with gradient */}
         <div className="bg-gradient-to-r from-primary-600 to-primary-800 p-6 text-white">
           <div className="flex items-center justify-between mb-4">

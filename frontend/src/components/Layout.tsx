@@ -17,6 +17,7 @@ const ABOUT_LINKS = [
 const EXPLORE_LINKS = [
   { to: "/events", label: "Events" },
   { to: "/tickets", label: "Tickets" },
+  { to: "/winners", label: "Lucky Draw Winners" },
   { to: "/news", label: "News" },
   { to: "/gallery", label: "Gallery" },
   { to: "/students", label: "Students" },
@@ -187,6 +188,7 @@ export default function Layout() {
     { to: dashboardPath, label: "Dashboard" },
     { to: "/admin/events", label: "Event Management" },
     { to: "/admin/tickets", label: "Event Tickets" },
+    { to: "/admin/payments", label: "Payment Approvals" },
     { to: "/admin/ticket-products", label: "Ticket Products" },
     { to: "/admin/news", label: "News Management" },
     { to: "/admin/gallery", label: "Gallery Management" },
@@ -281,17 +283,18 @@ export default function Layout() {
                   <>
                     <DropdownMenu
                       label="Community"
-                      active={
-                        isActive("/members") || isActive("/alumni")
-                      }
-                      items={[...COMMUNITY_LINKS, { to: "/alumni", label: "Alumni" }]}
+                      active={isActive("/members") || isActive("/alumni")}
+                      items={[
+                        ...COMMUNITY_LINKS,
+                        { to: "/alumni", label: "Alumni" },
+                      ]}
                       onNavigate={go}
                     />
                     <DropdownMenu
                       label="Resources"
-                      active={RESOURCE_LINKS.filter((l) => l.to !== "/alumni").some((l) =>
-                        isActive(l.to),
-                      )}
+                      active={RESOURCE_LINKS.filter(
+                        (l) => l.to !== "/alumni",
+                      ).some((l) => isActive(l.to))}
                       items={RESOURCE_LINKS.filter((l) => l.to !== "/alumni")}
                       onNavigate={go}
                     />
@@ -408,10 +411,26 @@ export default function Layout() {
       >
         <div className="grid grid-cols-5 h-16">
           {[
-            { to: "/", label: "Home", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
-            { to: "/events", label: "Events", icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" },
-            { to: "/news", label: "News", icon: "M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" },
-            { to: "/waaee", label: "About", icon: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
+            {
+              to: "/",
+              label: "Home",
+              icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6",
+            },
+            {
+              to: "/events",
+              label: "Events",
+              icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
+            },
+            {
+              to: "/news",
+              label: "News",
+              icon: "M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z",
+            },
+            {
+              to: "/waaee",
+              label: "About",
+              icon: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+            },
           ].map((item) => {
             const active = isActive(item.to);
             return (
@@ -542,18 +561,18 @@ function UserDropdown({
             Dashboard
           </Link>
           <Link
-            to="/my-purchased-tickets"
+            to="/my-tickets"
             onClick={() => setOpen(false)}
             className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
             My Tickets
           </Link>
           <Link
-            to="/my-tickets"
+            to="/my-payments"
             onClick={() => setOpen(false)}
             className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
-            My Event Tickets
+            My Payments
           </Link>
           <Link
             to="/profile"
@@ -562,6 +581,7 @@ function UserDropdown({
           >
             Profile
           </Link>
+
           <Link
             to="/my-events"
             onClick={() => setOpen(false)}
@@ -710,18 +730,18 @@ function MobileMenu({
               </div>
             </div>
             <Link
-              to="/my-purchased-tickets"
-              onClick={closeMenu}
-              className={linkClass("/my-purchased-tickets")}
-            >
-              My Tickets
-            </Link>
-            <Link
               to="/my-tickets"
               onClick={closeMenu}
               className={linkClass("/my-tickets")}
             >
-              My Event Tickets
+              My Tickets
+            </Link>
+            <Link
+              to="/my-payments"
+              onClick={closeMenu}
+              className={linkClass("/my-payments")}
+            >
+              My Payments
             </Link>
             <Link
               to="/profile"
@@ -730,6 +750,7 @@ function MobileMenu({
             >
               Profile
             </Link>
+
             <Link
               to="/my-events"
               onClick={closeMenu}
@@ -811,12 +832,20 @@ function MobileMenu({
               Event Tickets
             </Link>
             <Link
+              to="/admin/payments"
+              onClick={closeMenu}
+              className={linkClass("/admin/payments")}
+            >
+              Payment Approvals
+            </Link>
+            <Link
               to="/admin/ticket-products"
               onClick={closeMenu}
               className={linkClass("/admin/ticket-products")}
             >
               Ticket Products
             </Link>
+
             <Link
               to="/admin/news"
               onClick={closeMenu}

@@ -70,7 +70,7 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const { eventId, paymentId } = req.body;
-      const userId = req.user?._id;
+      const userId = req.userId;
 
       if (!eventId || !paymentId) {
         res.status(400).json({
@@ -209,7 +209,7 @@ router.post(
 // GET /api/tickets/my-tickets - Get all tickets for logged-in user
 router.get("/my-tickets", authenticate, async (req: Request, res: Response) => {
   try {
-    const userId = req.user?._id;
+    const userId = req.userId;
     const { status, eventId } = req.query;
 
     const filter: any = { user: userId };
@@ -235,7 +235,7 @@ router.get("/my-tickets", authenticate, async (req: Request, res: Response) => {
 router.get("/:id", authenticate, async (req: Request, res: Response) => {
   try {
     const ticketId = req.params.id;
-    const userId = req.user?._id;
+    const userId = req.userId;
 
     const ticket = await Ticket.findById(ticketId)
       .populate("event", "title date endDate location image category description")
@@ -250,8 +250,8 @@ router.get("/:id", authenticate, async (req: Request, res: Response) => {
     // Check if user owns this ticket or is admin/superadmin
     if (
       ticket.user._id.toString() !== userId?.toString() &&
-      req.user?.role !== "admin" &&
-      req.user?.role !== "superadmin"
+      req.userRole !== "admin" &&
+      req.userRole !== "superadmin"
     ) {
       res.status(403).json({ message: "Access denied" });
       return;
@@ -309,7 +309,7 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const ticketId = req.params.id;
-      const userId = req.user?._id;
+      const userId = req.userId;
 
       const ticket = await Ticket.findById(ticketId);
 
@@ -368,7 +368,7 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       // Check if user is admin or superadmin
-      if (req.user?.role !== "admin" && req.user?.role !== "superadmin") {
+      if (req.userRole !== "admin" && req.userRole !== "superadmin") {
         res.status(403).json({ message: "Access denied. Admin only." });
         return;
       }
