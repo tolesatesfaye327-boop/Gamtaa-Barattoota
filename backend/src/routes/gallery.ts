@@ -1,46 +1,17 @@
 import express, { Router, Request, Response } from "express";
 import multer from "multer";
-import path from "path";
-import { fileURLToPath } from "url";
 import { Gallery } from "../models/Gallery.js";
 import { authenticate, authorize } from "../middleware/auth.js";
+import { galleryStorage } from "../config/cloudinary.js";
 
 const router: Router = express.Router();
 
 const ADMIN_ROLES = ["superadmin", "admin"];
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Configure multer for photo uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../../uploads"));
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, `gallery-${uniqueSuffix}${ext}`);
-  },
-});
-
+// Configure multer with Cloudinary storage
 const upload = multer({
-  storage,
+  storage: galleryStorage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
-  fileFilter: (req, file, cb) => {
-    const allowed = /jpeg|jpg|png|gif|webp|bmp|svg/;
-    const ext = allowed.test(path.extname(file.originalname).toLowerCase());
-    const mime = allowed.test(file.mimetype.split("/")[1]);
-    if (ext || mime) {
-      cb(null, true);
-    } else {
-      cb(
-        new Error(
-          "Only image files are allowed (jpeg, jpg, png, gif, webp, bmp, svg)",
-        ),
-      );
-    }
-  },
 });
 
 // Get all public galleries (public)
@@ -138,10 +109,8 @@ router.post(
       let caption: string = "";
 
       if (req.file) {
-        // File upload via multer
-        const protocol = req.protocol;
-        const host = req.get("host");
-        url = `${protocol}://${host}/uploads/${req.file.filename}`;
+        // Cloudinary upload - get the secure URL
+        url = (req.file as any).path; // Cloudinary provides secure_url in file.path
         caption = req.body.caption || "";
       } else {
         // URL input fallback
@@ -188,10 +157,9 @@ router.post(
       const captions = req.body.captions ? JSON.parse(req.body.captions) : [];
 
       files.forEach((file, index) => {
-        const protocol = req.protocol;
-        const host = req.get("host");
+        // Cloudinary provides secure URL in file.path
         gallery.images.push({
-          url: `${protocol}://${host}/uploads/${file.filename}`,
+          url: (file as any).path,
           caption: captions[index] || "",
           uploadedBy: req.userId as any,
         });
