@@ -1,6 +1,5 @@
 import express, { Router, Request, Response } from "express";
 import { Student } from "../models/Student.js";
-import { User } from "../models/User.js";
 import { authenticate, authorize } from "../middleware/auth.js";
 
 const router: Router = express.Router();

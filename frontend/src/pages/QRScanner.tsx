@@ -43,28 +43,6 @@ export default function QRScanner() {
     }
   };
 
-  const handleQRScan = async (qrCode: string) => {
-    setLoading(true);
-    setResult(null);
-
-    try {
-      const response = await apiClient.post("/checkin/qr", { qrCode });
-      setResult({
-        success: true,
-        message: response.data.message,
-        ticket: response.data.ticket,
-      });
-      fetchCheckInStats(); // Refresh stats
-    } catch (error: any) {
-      setResult({
-        success: false,
-        message: error.response?.data?.message || "Check-in failed",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleManualCheckIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!manualTicketNumber.trim()) return;

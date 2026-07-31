@@ -14,7 +14,7 @@ cloudinary.config({
 // Cloudinary storage for gallery images
 export const galleryStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: async (req, file) => {
+  params: async () => {
     return {
       folder: "gbaabw/gallery",
       allowed_formats: ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"],
@@ -27,7 +27,7 @@ export const galleryStorage = new CloudinaryStorage({
 // Cloudinary storage for profile images
 export const profileStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: async (req, file) => {
+  params: async () => {
     return {
       folder: "gbaabw/profiles",
       allowed_formats: ["jpg", "jpeg", "png", "webp"],
@@ -42,7 +42,7 @@ export const profileStorage = new CloudinaryStorage({
 // Cloudinary storage for documents/thumbnails
 export const documentStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: async (req, file) => {
+  params: async () => {
     return {
       folder: "gbaabw/documents",
       allowed_formats: ["jpg", "jpeg", "png", "pdf"],
@@ -54,7 +54,7 @@ export const documentStorage = new CloudinaryStorage({
 // Cloudinary storage for payment receipt screenshots
 export const paymentReceiptStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: async (req, file) => {
+  params: async () => {
     return {
       folder: "gbaabw/payment-receipts",
       allowed_formats: ["jpg", "jpeg", "png", "webp", "gif", "pdf"],

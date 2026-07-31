@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import apiClient from "../services/api";
 import LuckyDrawWheel from "../components/LuckyDrawWheel";
@@ -70,7 +70,6 @@ export default function AdminLuckyDraw() {
   const [spinningTickets, setSpinningTickets] = useState<string[]>([]);
   const [drawnWinners, setDrawnWinners] = useState<Winner[]>([]);
   const [showConfetti, setShowConfetti] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     fetchEventInfo();

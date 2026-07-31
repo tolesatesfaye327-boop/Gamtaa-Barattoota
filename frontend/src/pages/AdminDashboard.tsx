@@ -72,7 +72,6 @@ export default function AdminDashboard() {
           color: "bg-green-500",
         },
         { label: "Events", value: stats.events.total, color: "bg-purple-500" },
-        { label: "Documents", value: stats.documents, color: "bg-indigo-500" },
         {
           label: "Gallery Albums",
           value: stats.galleries,
@@ -95,12 +94,6 @@ export default function AdminDashboard() {
   const adminActions = [
     { label: "Manage Events", path: "/admin/events", color: "bg-purple-500" },
     { label: "Gallery", path: "/admin/gallery", color: "bg-pink-500" },
-    { label: "Documents", path: "/admin/documents", color: "bg-indigo-500" },
-    {
-      label: "Opportunities",
-      path: "/admin/opportunities",
-      color: "bg-orange-500",
-    },
     { label: "Contact", path: "/admin/contact", color: "bg-red-500" },
   ];
 

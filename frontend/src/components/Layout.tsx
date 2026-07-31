@@ -23,13 +23,10 @@ const EXPLORE_LINKS = [
   { to: "/contact", label: "Contact" },
 ];
 
-const RESOURCE_LINKS = [
-  { to: "/documents", label: "Documents" },
+const COMMUNITY_LINKS = [
+  { to: "/members", label: "Members" },
   { to: "/resources", label: "Learning Resources" },
-  { to: "/opportunities", label: "Opportunities" },
 ];
-
-const COMMUNITY_LINKS = [{ to: "/members", label: "Members" }];
 
 function NavLinkButton({
   to,
@@ -189,8 +186,6 @@ export default function Layout() {
     { to: "/admin/ticket-products", label: "Ticket Products" },
     { to: "/admin/gallery", label: "Gallery Management" },
     { to: "/admin/leadership", label: "Leadership Management" },
-    { to: "/admin/documents", label: "Documents" },
-    { to: "/admin/opportunities", label: "Opportunities" },
     { to: "/admin/contact", label: "Contact Messages" },
     ...(user?.role === "superadmin"
       ? [
@@ -278,16 +273,10 @@ export default function Layout() {
                   <>
                     <DropdownMenu
                       label="Community"
-                       active={isActive("/members")}
+                      active={COMMUNITY_LINKS.some((l) => isActive(l.to))}
                       items={[
                         ...COMMUNITY_LINKS,
                       ]}
-                      onNavigate={go}
-                    />
-                    <DropdownMenu
-                      label="Resources"
-                       active={RESOURCE_LINKS.some((l) => isActive(l.to))}
-                       items={RESOURCE_LINKS}
                       onNavigate={go}
                     />
                   </>
@@ -761,27 +750,12 @@ function MobileMenu({
             >
               Members
             </Link>
-            <p className={sectionHeadingClass}>Resources</p>
-            <Link
-              to="/documents"
-              onClick={closeMenu}
-              className={linkClass("/documents")}
-            >
-              Documents
-            </Link>
             <Link
               to="/resources"
               onClick={closeMenu}
               className={linkClass("/resources")}
             >
               Learning Resources
-            </Link>
-            <Link
-              to="/opportunities"
-              onClick={closeMenu}
-              className={linkClass("/opportunities")}
-            >
-              Opportunities
             </Link>
           </>
         )}

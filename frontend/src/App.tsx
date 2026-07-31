@@ -38,8 +38,6 @@ import Resources from "./pages/Resources";
 import Notifications from "./pages/Notifications";
 import AdminEvents from "./pages/AdminEvents";
 import AdminGallery from "./pages/AdminGallery";
-import AdminDocuments from "./pages/AdminDocuments";
-import AdminOpportunities from "./pages/AdminOpportunities";
 import AdminContact from "./pages/AdminContact";
 import AdminStudents from "./pages/AdminStudents";
 import AdminLeadership from "./pages/AdminLeadership";
@@ -52,7 +50,6 @@ import QRScanner from "./pages/QRScanner";
 import AdminTicketProducts from "./pages/AdminTicketProducts";
 import Tickets from "./pages/Tickets";
 import BuyStandaloneTicket from "./pages/BuyStandaloneTicket";
-import MyPurchasedTickets from "./pages/MyPurchasedTickets";
 import WinnerPage from "./pages/WinnerPage";
 import AdminPayments from "./pages/AdminPayments";
 import MyPayments from "./pages/MyPayments";
@@ -357,22 +354,6 @@ function AppRoutes() {
           element={
             <AdminRoute>
               <AdminGallery />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/documents"
-          element={
-            <AdminRoute>
-              <AdminDocuments />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/opportunities"
-          element={
-            <AdminRoute>
-              <AdminOpportunities />
             </AdminRoute>
           }
         />

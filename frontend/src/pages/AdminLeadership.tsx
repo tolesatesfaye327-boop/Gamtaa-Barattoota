@@ -66,7 +66,6 @@ export default function AdminLeadership() {
       // Fetch all members including non-public ones (admin endpoint)
       const response = await apiClient.get("/members/all");
       const allMembers: Member[] = response.data;
-      console.log("All members fetched:", allMembers.length);
       
       // Filter for leadership roles
       const leaders = allMembers.filter((m) => {
@@ -74,11 +73,9 @@ export default function AdminLeadership() {
         const isLeader = LEADERSHIP_DESIGNATIONS.some((designation) =>
           role.includes(designation.toLowerCase())
         );
-        console.log(`Member: ${m.fullName}, Designation: "${m.designation}", IsLeader: ${isLeader}, IsPublic: ${m.isPublic}`);
         return isLeader;
       });
       
-      console.log("Leadership members found:", leaders.length);
       setMembers(leaders);
     } catch (err: unknown) {
       const msg =

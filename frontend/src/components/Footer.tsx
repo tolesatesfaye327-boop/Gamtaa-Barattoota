@@ -25,9 +25,7 @@ export default function Footer() {
   ];
 
   const memberLinks = [
-    { to: "/documents", label: "Documents" },
     { to: "/resources", label: "Learning Resources" },
-    { to: "/opportunities", label: "Opportunities" },
   ];
 
   return (

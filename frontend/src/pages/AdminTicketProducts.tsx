@@ -91,15 +91,11 @@ export default function AdminTicketProducts() {
     setSuccess(null);
     
     try {
-      console.log("Submitting form data:", formData);
-      
       if (editing) {
-        const response = await apiClient.patch(`/ticket-products/${editing._id}`, formData);
-        console.log("Update response:", response.data);
+        await apiClient.patch(`/ticket-products/${editing._id}`, formData);
         setSuccess("Ticket product updated successfully!");
       } else {
-        const response = await apiClient.post("/ticket-products", formData);
-        console.log("Create response:", response.data);
+        await apiClient.post("/ticket-products", formData);
         setSuccess("Ticket product created successfully!");
       }
       

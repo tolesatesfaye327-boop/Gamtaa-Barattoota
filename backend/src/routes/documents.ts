@@ -24,7 +24,9 @@ router.get('/', async (req: Request, res: Response) => {
         } else if (MEMBER_ROLES.includes(decoded.role)) {
           accessFilter = { accessLevel: { $in: ['public', 'members'] } };
         }
-      } catch {}
+      } catch {
+        accessFilter = { accessLevel: 'public' };
+      }
     }
 
     if (req.query.category) {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import apiClient from "../services/api";
 import LuckyDrawWheel from "../components/LuckyDrawWheel";
 
@@ -287,99 +287,6 @@ export default function WinnerPage() {
           </div>
         )}
       </div>
-    </div>
-  );
-}
-
-function LuckySpinWheel({ tickets }: { tickets: string[] }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [rotation, setRotation] = useState(0);
-  const [spinning, setSpinning] = useState(false);
-  const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
-  const size = 600;
-  const colors = ["#0c3f77", "#ff4b26", "#f5b400", "#10bfa3"];
-  const wheelTickets = tickets;
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const context = canvas?.getContext("2d");
-    if (!context || wheelTickets.length === 0) return;
-
-    const radius = size / 2;
-    const arc = (2 * Math.PI) / wheelTickets.length;
-    context.clearRect(0, 0, size, size);
-
-    wheelTickets.forEach((ticket, index) => {
-      const start = -Math.PI / 2 + index * arc;
-      const end = start + arc;
-      context.beginPath();
-      context.moveTo(radius, radius);
-      context.arc(radius, radius, radius - 10, start, end);
-      context.fillStyle = colors[index % colors.length];
-      context.fill();
-      context.strokeStyle = "rgba(255,255,255,.35)";
-      context.lineWidth = 2;
-      context.stroke();
-
-      context.save();
-      context.translate(radius, radius);
-      context.rotate(start + arc / 2);
-      context.textAlign = "right";
-      context.fillStyle = "white";
-      context.font = `bold ${wheelTickets.length > 18 ? 17 : 24}px Arial`;
-      context.fillText(ticket, radius - 38, 7);
-      context.restore();
-    });
-  }, [wheelTickets.join("|")]);
-
-  const spin = () => {
-    if (spinning || wheelTickets.length < 2) return;
-    const winnerIndex = Math.floor(Math.random() * wheelTickets.length);
-    const arcDegrees = 360 / wheelTickets.length;
-    const segmentCenter = -90 + (winnerIndex + 0.5) * arcDegrees;
-    const remainder = ((-90 - segmentCenter - rotation) % 360 + 360) % 360;
-    const finalRotation = rotation + 360 * 8 + remainder;
-
-    setSpinning(true);
-    setSelectedTicket(null);
-    setRotation(finalRotation);
-    window.setTimeout(() => {
-      setSelectedTicket(wheelTickets[winnerIndex]);
-      setSpinning(false);
-    }, 6000);
-  };
-
-  return (
-    <div className="mt-8 flex flex-col items-center">
-      <div className="relative w-full max-w-[560px] aspect-square">
-        <div className="absolute left-1/2 top-[-10px] z-20 -translate-x-1/2 border-l-[20px] border-r-[20px] border-t-[44px] border-l-transparent border-r-transparent border-t-yellow-400 drop-shadow-lg" />
-        <canvas
-          ref={canvasRef}
-          width={size}
-          height={size}
-          className="h-full w-full rounded-full bg-white shadow-[0_10px_25px_rgba(0,0,0,.45)] transition-transform duration-[6000ms] ease-[cubic-bezier(.17,.67,.22,1)]"
-          style={{ transform: `rotate(${rotation}deg)` }}
-        />
-        <div className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 border-yellow-500 bg-white text-2xl shadow-xl">
-          🎫
-        </div>
-      </div>
-      <button
-        type="button"
-        onClick={spin}
-        disabled={spinning || wheelTickets.length < 2}
-        className="mt-7 h-12 w-44 rounded-lg bg-blue-600 text-lg font-bold text-white shadow-lg transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-500"
-      >
-        {spinning ? "SPINNING..." : "SPIN"}
-      </button>
-      {selectedTicket && (
-        <div className="mt-5 rounded-xl border border-yellow-400/50 bg-yellow-400/15 px-6 py-3 text-center text-lg font-bold text-yellow-200">
-          🎉 Selected ticket: <span className="font-mono text-white">{selectedTicket}</span>
-        </div>
-      )}
-      <p className="mt-3 text-sm text-gray-300">
-        {wheelTickets.length} paid tickets are eligible
-      </p>
     </div>
   );
 }

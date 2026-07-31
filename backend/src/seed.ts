@@ -45,12 +45,6 @@ async function seed() {
 
     // ── Real Members (from Committee Data) ─────────────────────
     console.log("Creating real members...");
-    const committeeHeads = [
-      "Wasihun Teferi",
-      "Tesfaye Abebe",
-      "Tolesa Kebede",
-      "Duulaa Ajjama",
-    ];
     const memberData = [
       {
         firstName: "Wasihun",

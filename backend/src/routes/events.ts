@@ -1,7 +1,6 @@
 import express, { Router, Request, Response } from "express";
 import { Event } from "../models/Event.js";
 import { Ticket } from "../models/Ticket.js";
-import { Payment } from "../models/Payment.js";
 import { authenticate, authorize } from "../middleware/auth.js";
 
 const router: Router = express.Router();

@@ -38,7 +38,6 @@ const avatarColors = [
 
 export default function Leadership() {
   const { token } = useAuthStore()
-  const [leaders, setLeaders] = useState<Leader[]>([])
   const [leadershipGroups, setLeadershipGroups] = useState<LeadershipGroup[]>([])
   const [expandedYears, setExpandedYears] = useState<Set<string>>(new Set(["current"]))
   const [loading, setLoading] = useState(true)
@@ -87,8 +86,6 @@ export default function Leadership() {
           return isLeader
         })
         
-        setLeaders(filtered)
-
         // Group leaders by year
         const groups = groupLeadersByYear(filtered)
         setLeadershipGroups(groups)
@@ -114,27 +111,19 @@ export default function Leadership() {
 
     leaders.forEach((leader) => {
       let yearKey: string
-      let displayText: string
-      let isCurrent = false
 
       if (leader.isCurrent || (!leader.tenureEndYear && leader.tenureStartYear)) {
         // Current leadership
         yearKey = "current"
-        displayText = `Current Leadership${leader.tenureStartYear ? ` (${leader.tenureStartYear} - Present)` : ""}`
-        isCurrent = true
       } else if (leader.tenureStartYear && leader.tenureEndYear) {
         // Historical leadership with range
         yearKey = `${leader.tenureStartYear}-${leader.tenureEndYear}`
-        displayText = `${leader.tenureStartYear} - ${leader.tenureEndYear}`
       } else if (leader.tenureStartYear) {
         // Single year
         yearKey = `${leader.tenureStartYear}`
-        displayText = `${leader.tenureStartYear}`
       } else {
         // No year specified - treat as current
         yearKey = "current"
-        displayText = "Current Leadership"
-        isCurrent = true
       }
 
       if (!grouped.has(yearKey)) {

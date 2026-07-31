@@ -5,6 +5,8 @@ interface CustomError extends Error {
 }
 
 const errorHandler = (err: CustomError, req: Request, res: Response, next: NextFunction): void => {
+  void req;
+  void next;
   console.error(err);
 
   const status = err.status || 500;

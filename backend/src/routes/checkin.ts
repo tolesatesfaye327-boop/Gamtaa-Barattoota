@@ -296,7 +296,6 @@ router.get(
       const totalCheckIns = await CheckIn.countDocuments({ event: eventId });
 
       // Get event stats
-      const event = await Event.findById(eventId);
       const totalTickets = await Ticket.countDocuments({ event: eventId });
 
       res.json({
