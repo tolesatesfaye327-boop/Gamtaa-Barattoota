@@ -23,7 +23,6 @@ import Contact from "./pages/Contact";
 import FAQs from "./pages/FAQs";
 import Galata from "./pages/Galata";
 import Ergaa from "./pages/Ergaa";
-import Yaadannoo from "./pages/Yaadannoo";
 import Koreewwan from "./pages/Koreewwan";
 import Students from "./pages/Students";
 import StudentDetail from "./pages/StudentDetail";
@@ -149,7 +148,6 @@ function AppRoutes() {
         <Route path="/faqs" element={<FAQs />} />
         <Route path="/galata" element={<Galata />} />
         <Route path="/ergaa" element={<Ergaa />} />
-        <Route path="/yaadannoo" element={<Yaadannoo />} />
         <Route path="/koreewwan" element={<Koreewwan />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />

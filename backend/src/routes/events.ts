@@ -47,6 +47,23 @@ router.get("/", async (req: Request, res: Response) => {
 });
 
 // Get event by ID
+router.get(
+  "/my-registrations",
+  authenticate,
+  async (req: Request, res: Response) => {
+    try {
+      const events = await Event.find({ attendees: req.userId })
+        .populate("organizer", "firstName lastName")
+        .sort({ date: 1 });
+
+      res.json(events);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch registered events", error });
+    }
+  },
+);
+
+// Get event by ID
 router.get("/:id", async (req: Request, res: Response) => {
   try {
     const event = await Event.findById(req.params.id)

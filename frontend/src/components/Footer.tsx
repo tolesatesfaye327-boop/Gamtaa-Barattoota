@@ -17,7 +17,6 @@ export default function Footer() {
     { to: "/koreewwan", label: "Committees" },
     { to: "/galata", label: "Thanksgiving" },
     { to: "/ergaa", label: "Brief Message" },
-    { to: "/yaadannoo", label: "Memorial" },
   ];
 
   const memberLinks = [

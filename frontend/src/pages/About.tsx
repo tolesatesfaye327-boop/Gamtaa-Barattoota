@@ -106,7 +106,6 @@ const districts = [
 const secondaryLinks = [
   { to: "/galata", label: "Thanksgiving", desc: "Galataa fi kabajaa" },
   { to: "/ergaa", label: "Brief Message", desc: "Ergaa gabaabaa" },
-  { to: "/yaadannoo", label: "Memorial", desc: "Yaadannoo" },
   { to: "/koreewwan", label: "Committees", desc: "Koreewwan gamtaa" },
 ];
 

@@ -94,48 +94,93 @@ export default function Notifications() {
   };
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const getTypeClass = (type: string) => {
+    switch (type?.toLowerCase()) {
+      case "success":
+        return "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-300";
+      case "warning":
+        return "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-300";
+      case "error":
+        return "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-300";
+      case "event":
+        return "bg-violet-50 text-violet-600 dark:bg-violet-900/30 dark:text-violet-300";
+      case "message":
+        return "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300";
+      default:
+        return "bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300";
+    }
+  };
 
   if (loading) {
-    return <div className="text-center py-12">Beeksisota fe'aa jira...</div>;
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-16 text-center text-gray-500 dark:text-gray-400 sm:px-6">
+        <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-primary-500 dark:border-gray-700 dark:border-t-primary-400" />
+        Beeksisota fe&apos;aa jira...
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-        {error}
+      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+        <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
+          <span className="font-bold">!</span>
+          {error}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-4xl font-bold text-primary">Beeksisota</h1>
+    <div className="mx-auto max-w-4xl space-y-6 px-4 pb-12 sm:px-6">
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800/80 sm:p-7">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary-600 dark:text-primary-400">
+              <span className="h-2 w-2 rounded-full bg-primary-500" />
+              Account updates
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+              Beeksisota
+            </h1>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Odeeffannoo fi haala hojii kee hordofi.
+            </p>
+          </div>
+          <div className="rounded-xl bg-gray-50 px-4 py-3 dark:bg-gray-900/50">
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Unread</p>
+            <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{unreadCount}</p>
+          </div>
+        </div>
         {unreadCount > 0 && (
           <button
             onClick={handleMarkAllRead}
-            className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition"
+            className="mt-5 inline-flex items-center rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-600/20 transition hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-500/20"
           >
-            Hunda Kan Dubbifame gochuu ({unreadCount})
+            Hunda kan dubbifame gochuu ({unreadCount})
           </button>
         )}
       </div>
 
       {notifications.length === 0 ? (
-        <p className="text-gray-600">Beeksi hin jiru.</p>
+        <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center dark:border-gray-700 dark:bg-gray-800/60">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 text-2xl dark:bg-gray-700">🔔</div>
+          <p className="mt-4 font-semibold text-gray-800 dark:text-white">Beeksi hin jiru.</p>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Yeroo ammaa beeksisni haaraan hin jiru.</p>
+        </div>
       ) : (
         <div className="space-y-3">
           {notifications.map((notification) => (
             <div
               key={notification._id}
               onClick={() => !notification.isRead && handleMarkRead(notification._id)}
-              className={`bg-white p-4 rounded-lg shadow hover:shadow-lg transition cursor-pointer flex items-start gap-4 ${
+              className={`group flex cursor-pointer items-start gap-4 rounded-2xl border bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-gray-800 sm:p-5 ${
                 !notification.isRead
-                  ? "border-l-4 border-primary"
-                  : "opacity-75"
+                  ? "border-primary-200 dark:border-primary-900/60"
+                  : "border-gray-200 opacity-80 dark:border-gray-700"
               }`}
             >
-              <div className="text-2xl">
+              <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl ${getTypeClass(notification.type)}`}>
                 {getTypeIcon(notification.type)}
               </div>
               <div className="flex-1">
@@ -143,26 +188,27 @@ export default function Notifications() {
                   <h3
                     className={`font-semibold ${
                       !notification.isRead
-                        ? "text-primary"
-                        : "text-gray-700"
+                        ? "text-gray-900 dark:text-white"
+                        : "text-gray-600 dark:text-gray-300"
                     }`}
                   >
                     {notification.title}
                   </h3>
-                  <span className="text-xs text-gray-500 whitespace-nowrap ml-4">
+                  <span className="ml-4 whitespace-nowrap text-xs text-gray-400 dark:text-gray-500">
                     {timeAgo(notification.createdAt)}
                   </span>
                 </div>
-                <p className="text-gray-600 text-sm mt-1">
+                <p className="mt-1 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
                   {notification.message}
                 </p>
+                {!notification.isRead && <span className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-400"><span className="h-1.5 w-1.5 rounded-full bg-primary-500" /> Haaraa</span>}
               </div>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleDelete(notification._id);
                 }}
-                className="text-red-500 hover:text-red-700 transition"
+                className="rounded-lg p-1.5 text-gray-400 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
                 title="Haqi"
               >
                 ✕
