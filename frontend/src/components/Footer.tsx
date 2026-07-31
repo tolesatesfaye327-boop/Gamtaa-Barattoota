@@ -5,10 +5,6 @@ export default function Footer() {
   const { token } = useAuthStore();
 
   const exploreLinks = [
-    { to: "/events", label: "Events" },
-    { to: "/tickets", label: "Event Tickets" },
-    { to: "/winners", label: "Lucky Draw Winners" },
-    { to: "/my-tickets", label: "My Tickets" },
     { to: "/gallery", label: "Gallery" },
     { to: "/students", label: "Students" },
     { to: "/contact", label: "Contact" },

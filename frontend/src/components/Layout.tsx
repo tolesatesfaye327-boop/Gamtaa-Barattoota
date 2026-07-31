@@ -506,10 +506,6 @@ function UserDropdown({
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors rounded-md"
       >
-        <div className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">
-          {user.firstName?.[0] ?? ""}
-          {user.lastName?.[0] ?? ""}
-        </div>
         <span className="hidden xl:inline">
           {user.firstName} {user.lastName}
         </span>
