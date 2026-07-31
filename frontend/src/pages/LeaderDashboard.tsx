@@ -17,10 +17,8 @@ import {
 
 interface DashboardStats {
   events: { upcoming: number; ongoing: number; completed: number; total: number };
-  news: { published: number; draft: number; total: number };
   documents: number;
   galleries: number;
-  alumni: number;
   payments: { totalRevenue: number; pending: number };
   contacts: { unread: number; total: number };
   opportunities: { active: number; total: number };
@@ -108,14 +106,6 @@ function ActivityIcon({ type }: { type: string }) {
           </svg>
         </div>
       );
-    case "news":
-      return (
-        <div className={`${base} bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400`}>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-          </svg>
-        </div>
-      );
     case "contact":
       return (
         <div className={`${base} bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400`}>
@@ -184,10 +174,8 @@ export default function LeaderDashboard() {
     if (!stats) return [];
     return [
       { name: "Events", count: stats.events.total, fill: "#A855F7" },
-      { name: "News", count: stats.news.total, fill: "#F97316" },
       { name: "Documents", count: stats.documents, fill: "#6366F1" },
       { name: "Galleries", count: stats.galleries, fill: "#EC4899" },
-      { name: "Alumni", count: stats.alumni, fill: "#14B8A6" },
       { name: "Opportunities", count: stats.opportunities.total, fill: "#06B6D4" },
     ];
   }, [stats]);
@@ -198,8 +186,6 @@ export default function LeaderDashboard() {
       { name: "Upcoming Events", value: stats.events.upcoming, color: PIE_COLORS[0] },
       { name: "Ongoing Events", value: stats.events.ongoing, color: PIE_COLORS[1] },
       { name: "Completed Events", value: stats.events.completed, color: PIE_COLORS[2] },
-      { name: "Published News", value: stats.news.published, color: PIE_COLORS[3] },
-      { name: "Draft News", value: stats.news.draft, color: PIE_COLORS[4] },
     ];
   }, [stats]);
 
@@ -214,17 +200,6 @@ export default function LeaderDashboard() {
         icon: (
           <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-        ),
-      },
-      {
-        label: "Published News",
-        value: stats.news.published,
-        gradient: "bg-gradient-to-br from-orange-500 to-orange-700",
-        subtitle: `${stats.news.draft} drafts`,
-        icon: (
-          <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
           </svg>
         ),
       },
@@ -245,16 +220,6 @@ export default function LeaderDashboard() {
         icon: (
           <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-        ),
-      },
-      {
-        label: "Alumni",
-        value: stats.alumni,
-        gradient: "bg-gradient-to-br from-teal-500 to-teal-700",
-        icon: (
-          <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21v-2a4 4 0 00-4-4H9a4 4 0 00-4 4v2m6-10a4 4 0 100-8 4 4 0 000 8z" />
           </svg>
         ),
       },
@@ -284,16 +249,6 @@ export default function LeaderDashboard() {
       color: "from-purple-600 to-purple-700",
     },
     {
-      label: "News & Updates",
-      path: "/admin/news",
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-        </svg>
-      ),
-      color: "from-orange-600 to-orange-700",
-    },
-    {
       label: "Gallery",
       path: "/admin/gallery",
       icon: (
@@ -312,16 +267,6 @@ export default function LeaderDashboard() {
         </svg>
       ),
       color: "from-indigo-600 to-indigo-700",
-    },
-    {
-      label: "Alumni",
-      path: "/admin/alumni",
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21v-2a4 4 0 00-4-4H9a4 4 0 00-4 4v2m6-10a4 4 0 100-8 4 4 0 000 8z" />
-        </svg>
-      ),
-      color: "from-teal-600 to-teal-700",
     },
     {
       label: "Opportunities",
@@ -437,8 +382,8 @@ export default function LeaderDashboard() {
 
           {/* Pie Chart */}
           <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl p-5 sm:p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-            <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">Events &amp; News Status</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Breakdown of events and news</p>
+            <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">Event Status</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Breakdown of events</p>
             <div className="h-64 sm:h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>

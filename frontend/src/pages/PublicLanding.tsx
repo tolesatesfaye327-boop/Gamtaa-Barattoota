@@ -30,29 +30,6 @@ const upcomingEvents = [
   },
 ];
 
-const latestNews = [
-  {
-    title: "Gamtaan karoora bara haaraa ifoomse",
-    date: "July 18, 2026",
-    excerpt:
-      "Karoorri haaraan barnoota, tajaajila hawaasaa fi guddina ogummaa irratti xiyyeeffata.",
-    category: "Karoorri",
-  },
-  {
-    title: "Miseensonni haaraan galmaauu jalqaban",
-    date: "July 15, 2026",
-    excerpt:
-      "Galmeen miseensota haaraa banuun barattoota kutaa adda addaa walitti fideera.",
-    category: "Miseensa",
-  },
-  {
-    title: "Leenjii qormaata xumuraa milkaae",
-    date: "July 10, 2026",
-    excerpt: "Sagantaan gorsa qormaata xumuraa barattoota hedduu fayyadeera.",
-    category: "Sagantaa",
-  },
-];
-
 const testimonials = [
   {
     name: "Bontu Tadesse",
@@ -252,50 +229,6 @@ export default function PublicLanding() {
                 </p>
                 <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
                   {event.description}
-                </p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16 sm:py-20 bg-gray-50 dark:bg-gray-900/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-            <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
-                Latest News
-              </h2>
-              <p className="mt-2 text-gray-500 dark:text-gray-400">
-                Oduu fi haaromsa gamtaa irraa saffisaan argadhaa.
-              </p>
-            </div>
-            <Link
-              to="/news"
-              className="text-sm font-semibold text-primary-600 dark:text-primary-400 hover:underline"
-            >
-              Read all news →
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {latestNews.map((news) => (
-              <article
-                key={news.title}
-                className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <span className="inline-block px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-semibold">
-                    {news.category}
-                  </span>
-                  <p className="text-xs font-semibold tracking-wide uppercase text-gray-500 dark:text-gray-400">
-                    {news.date}
-                  </p>
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                  {news.title}
-                </h3>
-                <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
-                  {news.excerpt}
                 </p>
               </article>
             ))}

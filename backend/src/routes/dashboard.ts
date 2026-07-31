@@ -2,10 +2,8 @@ import express, { Router, Request, Response } from 'express';
 import { User } from '../models/User.js';
 import { Member } from '../models/Member.js';
 import { Event } from '../models/Event.js';
-import { News } from '../models/News.js';
 import { DocModel as Document } from '../models/Document.js';
 import { Gallery } from '../models/Gallery.js';
-import { Alumni } from '../models/Alumni.js';
 import { Payment } from '../models/Payment.js';
 import { Contact } from '../models/Contact.js';
 import { Opportunity } from '../models/Opportunity.js';
@@ -25,11 +23,8 @@ router.get('/stats', authenticate, authorize(ADMIN_ROLES), async (req: Request, 
       upcomingEvents,
       ongoingEvents,
       completedEvents,
-      publishedNews,
-      draftNews,
       totalDocuments,
       totalGalleries,
-      totalAlumni,
       totalRevenue,
       pendingPayments,
       unreadContacts,
@@ -41,11 +36,8 @@ router.get('/stats', authenticate, authorize(ADMIN_ROLES), async (req: Request, 
       Event.countDocuments({ date: { $gte: new Date() }, isPublic: true }),
       Event.countDocuments({ date: { $lte: new Date() }, endDate: { $gte: new Date() }, isPublic: true }),
       Event.countDocuments({ endDate: { $lt: new Date() }, isPublic: true }),
-      News.countDocuments({ status: 'published' }),
-      News.countDocuments({ status: 'draft' }),
       Document.countDocuments(),
       Gallery.countDocuments(),
-      Alumni.countDocuments(),
       Payment.aggregate([
         { $match: { status: 'completed' } },
         { $group: { _id: null, total: { $sum: '$amount' } } },
@@ -68,14 +60,8 @@ router.get('/stats', authenticate, authorize(ADMIN_ROLES), async (req: Request, 
         completed: completedEvents,
         total: upcomingEvents + ongoingEvents + completedEvents,
       },
-      news: {
-        published: publishedNews,
-        draft: draftNews,
-        total: publishedNews + draftNews,
-      },
       documents: totalDocuments,
       galleries: totalGalleries,
-      alumni: totalAlumni,
       payments: {
         totalRevenue: totalRevenue[0]?.total || 0,
         pending: pendingPayments,
@@ -97,9 +83,8 @@ router.get('/stats', authenticate, authorize(ADMIN_ROLES), async (req: Request, 
 // Get recent activity
 router.get('/recent-activity', authenticate, authorize(ADMIN_ROLES), async (req: Request, res: Response) => {
   try {
-    const [recentEvents, recentNews, recentContacts, recentPayments] = await Promise.all([
+    const [recentEvents, recentContacts, recentPayments] = await Promise.all([
       Event.find().sort({ createdAt: -1 }).limit(10).select('title createdAt'),
-      News.find().sort({ createdAt: -1 }).limit(10).select('title createdAt status'),
       Contact.find().sort({ createdAt: -1 }).limit(10).select('name email subject status createdAt'),
       Payment.find().sort({ createdAt: -1 }).limit(10).select('amount paymentType status createdAt'),
     ]);
@@ -108,9 +93,6 @@ router.get('/recent-activity', authenticate, authorize(ADMIN_ROLES), async (req:
 
     recentEvents.forEach((e) =>
       activities.push({ type: 'event', action: 'created', title: e.title, createdAt: e.createdAt })
-    );
-    recentNews.forEach((n) =>
-      activities.push({ type: 'news', action: n.status, title: n.title, createdAt: n.createdAt })
     );
     recentContacts.forEach((c) =>
       activities.push({ type: 'contact', action: c.status, title: c.subject || c.name, createdAt: c.createdAt })

@@ -371,6 +371,12 @@ export default function AdminTicketProducts() {
                         Edit
                       </button>
                       <button
+                        onClick={() => navigate(`/admin/ticket-products/${product._id}/draw`)}
+                        className="px-3 py-1.5 bg-purple-500/10 text-purple-400 border border-purple-500/30 rounded-lg text-xs font-medium hover:bg-purple-500/20 transition-all"
+                      >
+                        Lucky Draw
+                      </button>
+                      <button
                         onClick={() => handleDelete(product._id)}
                         className="px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-lg text-xs font-medium hover:bg-red-500/20 transition-all"
                       >

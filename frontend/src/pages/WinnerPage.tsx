@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
 import apiClient from "../services/api";
+import LuckyDrawWheel from "../components/LuckyDrawWheel";
 
 interface Winner {
   _id: string;
@@ -34,6 +34,15 @@ interface EventItem {
   image?: string;
 }
 
+interface LiveDraw {
+  event: EventItem & { luckyDrawVisible: boolean };
+  tickets: { ticketNumber: string }[];
+  winners: Winner[];
+  isDrawing: boolean;
+  currentPrize: string;
+  selectedTicket: string;
+}
+
 const PRIZE_CATEGORIES = [
   { value: "all", label: "All Prizes", emoji: "✨" },
   { value: "grand", label: "Grand Prize", emoji: "🏆", badge: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
@@ -50,10 +59,28 @@ export default function WinnerPage() {
   const [selectedEvent, setSelectedEvent] = useState<string>("all");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [liveDraws, setLiveDraws] = useState<LiveDraw[]>([]);
 
   useEffect(() => {
     fetchWinnersData();
   }, [selectedEvent, selectedCategory]);
+
+  useEffect(() => {
+    const fetchLiveDraws = async () => {
+      try {
+        const response = await apiClient.get("/standalone-draw/live");
+        setLiveDraws(response.data.draws || []);
+      } catch (error) {
+        console.error("Error fetching live draws:", error);
+      }
+    };
+
+    fetchLiveDraws();
+    const refreshTimer = window.setInterval(fetchLiveDraws, 1000);
+    return () => {
+      window.clearInterval(refreshTimer);
+    };
+  }, []);
 
   const fetchWinnersData = async () => {
     try {
@@ -62,7 +89,7 @@ export default function WinnerPage() {
       if (selectedEvent !== "all") params.eventId = selectedEvent;
       if (selectedCategory !== "all") params.prizeCategory = selectedCategory;
 
-      const response = await apiClient.get("/draw/all-winners", { params });
+      const response = await apiClient.get("/standalone-draw/all-winners", { params });
       setWinners(response.data.winners || []);
       if (response.data.events) {
         setEvents(response.data.events);
@@ -112,6 +139,39 @@ export default function WinnerPage() {
           </div>
         </div>
       </div>
+
+      {liveDraws.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+          {liveDraws.map((draw) => {
+            return (
+              <section key={draw.event._id} className="relative overflow-hidden rounded-2xl border border-yellow-500/40 bg-gradient-to-br from-purple-950 via-gray-900 to-orange-950 p-6 sm:p-10 shadow-2xl">
+                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#facc15_1px,transparent_1px)] [background-size:18px_18px]" />
+                <div className="relative text-center">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-4 py-2 text-sm font-bold text-emerald-300 border border-emerald-400/30">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" /> LIVE LUCKY DRAW
+                  </span>
+                  <h2 className="mt-4 text-3xl sm:text-4xl font-black text-white">{draw.event.title}</h2>
+                  <p className="mt-2 text-yellow-200">Paid tickets are spinning now. Good luck!</p>
+                   <LuckyDrawWheel
+                     tickets={draw.tickets.map((ticket) => ticket.ticketNumber)}
+                     autoSpin={draw.isDrawing}
+                     showButton={false}
+                     targetTicket={draw.selectedTicket}
+                   />
+                   {draw.isDrawing && (
+                     <p className="mt-4 text-sm font-semibold text-amber-200">
+                       The wheel is spinning live{draw.currentPrize ? ` for ${draw.currentPrize}` : ""}.
+                     </p>
+                   )}
+                  {draw.winners.length > 0 && (
+                    <p className="mt-6 text-lg font-bold text-white">🏆 Winners have been announced below.</p>
+                  )}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Stats Section */}
@@ -227,6 +287,99 @@ export default function WinnerPage() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function LuckySpinWheel({ tickets }: { tickets: string[] }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [rotation, setRotation] = useState(0);
+  const [spinning, setSpinning] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
+  const size = 600;
+  const colors = ["#0c3f77", "#ff4b26", "#f5b400", "#10bfa3"];
+  const wheelTickets = tickets;
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext("2d");
+    if (!context || wheelTickets.length === 0) return;
+
+    const radius = size / 2;
+    const arc = (2 * Math.PI) / wheelTickets.length;
+    context.clearRect(0, 0, size, size);
+
+    wheelTickets.forEach((ticket, index) => {
+      const start = -Math.PI / 2 + index * arc;
+      const end = start + arc;
+      context.beginPath();
+      context.moveTo(radius, radius);
+      context.arc(radius, radius, radius - 10, start, end);
+      context.fillStyle = colors[index % colors.length];
+      context.fill();
+      context.strokeStyle = "rgba(255,255,255,.35)";
+      context.lineWidth = 2;
+      context.stroke();
+
+      context.save();
+      context.translate(radius, radius);
+      context.rotate(start + arc / 2);
+      context.textAlign = "right";
+      context.fillStyle = "white";
+      context.font = `bold ${wheelTickets.length > 18 ? 17 : 24}px Arial`;
+      context.fillText(ticket, radius - 38, 7);
+      context.restore();
+    });
+  }, [wheelTickets.join("|")]);
+
+  const spin = () => {
+    if (spinning || wheelTickets.length < 2) return;
+    const winnerIndex = Math.floor(Math.random() * wheelTickets.length);
+    const arcDegrees = 360 / wheelTickets.length;
+    const segmentCenter = -90 + (winnerIndex + 0.5) * arcDegrees;
+    const remainder = ((-90 - segmentCenter - rotation) % 360 + 360) % 360;
+    const finalRotation = rotation + 360 * 8 + remainder;
+
+    setSpinning(true);
+    setSelectedTicket(null);
+    setRotation(finalRotation);
+    window.setTimeout(() => {
+      setSelectedTicket(wheelTickets[winnerIndex]);
+      setSpinning(false);
+    }, 6000);
+  };
+
+  return (
+    <div className="mt-8 flex flex-col items-center">
+      <div className="relative w-full max-w-[560px] aspect-square">
+        <div className="absolute left-1/2 top-[-10px] z-20 -translate-x-1/2 border-l-[20px] border-r-[20px] border-t-[44px] border-l-transparent border-r-transparent border-t-yellow-400 drop-shadow-lg" />
+        <canvas
+          ref={canvasRef}
+          width={size}
+          height={size}
+          className="h-full w-full rounded-full bg-white shadow-[0_10px_25px_rgba(0,0,0,.45)] transition-transform duration-[6000ms] ease-[cubic-bezier(.17,.67,.22,1)]"
+          style={{ transform: `rotate(${rotation}deg)` }}
+        />
+        <div className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 border-yellow-500 bg-white text-2xl shadow-xl">
+          🎫
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={spin}
+        disabled={spinning || wheelTickets.length < 2}
+        className="mt-7 h-12 w-44 rounded-lg bg-blue-600 text-lg font-bold text-white shadow-lg transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-500"
+      >
+        {spinning ? "SPINNING..." : "SPIN"}
+      </button>
+      {selectedTicket && (
+        <div className="mt-5 rounded-xl border border-yellow-400/50 bg-yellow-400/15 px-6 py-3 text-center text-lg font-bold text-yellow-200">
+          🎉 Selected ticket: <span className="font-mono text-white">{selectedTicket}</span>
+        </div>
+      )}
+      <p className="mt-3 text-sm text-gray-300">
+        {wheelTickets.length} paid tickets are eligible
+      </p>
     </div>
   );
 }

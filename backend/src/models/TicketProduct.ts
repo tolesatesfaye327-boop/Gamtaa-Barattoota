@@ -8,6 +8,7 @@ export interface ITicketProduct extends Document {
   availableQuantity: number;
   soldQuantity: number;
   isActive: boolean;
+  luckyDrawVisible: boolean;
   image?: string;
   validFrom?: Date;
   validUntil?: Date;
@@ -51,6 +52,10 @@ const ticketProductSchema = new Schema<ITicketProduct>(
     isActive: {
       type: Boolean,
       default: true,
+    },
+    luckyDrawVisible: {
+      type: Boolean,
+      default: false,
     },
     image: {
       type: String,

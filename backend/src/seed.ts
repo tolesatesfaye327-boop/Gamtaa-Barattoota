@@ -3,14 +3,12 @@ import bcrypt from "bcryptjs";
 import { User } from "./models/User.js";
 import { Member } from "./models/Member.js";
 import { Event } from "./models/Event.js";
-import { News } from "./models/News.js";
 import { DocModel as Document } from "./models/Document.js";
 import { Gallery } from "./models/Gallery.js";
 import { Notification } from "./models/Notification.js";
 import { Contact } from "./models/Contact.js";
 import { Opportunity } from "./models/Opportunity.js";
 import { Resource } from "./models/Resource.js";
-import { Alumni } from "./models/Alumni.js";
 import { Payment } from "./models/Payment.js";
 import { Committee } from "./models/Committee.js";
 import connectDB from "./config/database.js";
@@ -415,60 +413,6 @@ async function seed() {
     ]);
     console.log(`✓ ${events.length} events created`);
 
-    // ── Sample News ────────────────────────────────────────────
-    console.log("Creating sample news...");
-    const news = await News.create([
-      {
-        title: "Announcing the 2026 Executive Committee Elections",
-        content:
-          "We are pleased to announce that nominations are now open for the 2026 Executive Committee elections. All active members are eligible to vote. The election period runs from March 1 to March 15, 2026.",
-        author: admin._id,
-        image: "https://images.unsplash.com/photo-1540910419892-4a36d2c3266c",
-        category: "announcement",
-        status: "published",
-        views: 145,
-        isPublic: true,
-        publishedAt: new Date(now.getTime() - 20 * 24 * 60 * 60 * 1000),
-      },
-      {
-        title: "The Impact of Community Associations on Local Development",
-        content:
-          "In this article, we explore how community associations like GBAABW contribute to local development through education, mentorship, and economic empowerment programs.",
-        author: createdUsers[0]._id,
-        image: "https://images.unsplash.com/photo-1559027615-cd4628902d4a",
-        category: "article",
-        status: "published",
-        views: 89,
-        isPublic: true,
-        publishedAt: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000),
-      },
-      {
-        title: "Member Spotlight: Ama Boateng's Journey in Public Service",
-        content:
-          "Get to know Ama Boateng, our Vice President, and learn about her inspiring journey in public service and community development over the past decade.",
-        author: createdUsers[2]._id,
-        image: "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6",
-        category: "blog",
-        status: "published",
-        views: 210,
-        isPublic: true,
-        publishedAt: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
-      },
-      {
-        title: "Important Update: Membership Dues for 2026",
-        content:
-          "This is a reminder that annual membership dues for 2026 are now due. Please make your payments by January 31st to avoid any disruption in your membership status.",
-        author: admin._id,
-        image: "",
-        category: "update",
-        status: "published",
-        views: 67,
-        isPublic: true,
-        publishedAt: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
-      },
-    ]);
-    console.log(`✓ ${news.length} news items created`);
-
     // ── Sample Documents ───────────────────────────────────────
     console.log("Creating sample documents...");
     const documents = await Document.create([
@@ -720,78 +664,6 @@ async function seed() {
       },
     ]);
     console.log(`✓ ${resources.length} resources created`);
-
-    // ── Sample Alumni Profiles ─────────────────────────────────
-    console.log("Creating sample alumni profiles...");
-    const alumni = await Alumni.create([
-      {
-        user: createdUsers[0]._id,
-        fullName: "Kwesi Agyeman",
-        email: "kwesi.agyeman@gbaabw.com",
-        phone: "+233-20-111-0001",
-        graduationYear: 2015,
-        department: "Business Administration",
-        currentPosition: "Senior Project Manager",
-        company: "TechCorp Ghana",
-        location: "Accra, Ghana",
-        bio: "Experienced project manager with a passion for community development and youth mentorship.",
-        profileImage:
-          "https://ui-avatars.com/api/?name=Kwesi+Agyeman&background=2563eb&color=fff",
-        linkedin: "https://linkedin.com/in/kwesiagyeman",
-        isMentor: true,
-        mentorshipAreas: [
-          "Project Management",
-          "Leadership",
-          "Career Development",
-        ],
-        isSuccessStory: true,
-        successStory:
-          "Kwesi started as a junior member and rose to become our President. His leadership transformed the association's outreach programs.",
-        isPublic: true,
-      },
-      {
-        user: createdUsers[1]._id,
-        fullName: "Ama Boateng",
-        email: "ama.boateng@gbaabw.com",
-        phone: "+233-20-111-0002",
-        graduationYear: 2016,
-        department: "Public Administration",
-        currentPosition: "Policy Advisor",
-        company: "Ministry of Education",
-        location: "Accra, Ghana",
-        bio: "Dedicated public servant committed to educational policy reform and community empowerment.",
-        profileImage:
-          "https://ui-avatars.com/api/?name=Ama+Boateng&background=2563eb&color=fff",
-        linkedin: "https://linkedin.com/in/amaboateng",
-        isMentor: true,
-        mentorshipAreas: ["Public Policy", "Education", "Government Relations"],
-        isSuccessStory: true,
-        successStory:
-          "Ama's work in educational policy has directly impacted thousands of students across Ghana.",
-        isPublic: true,
-      },
-      {
-        user: createdUsers[4]._id,
-        fullName: "Yaw Mensah",
-        email: "yaw.mensah@gbaabw.com",
-        phone: "+233-20-111-0005",
-        graduationYear: 2018,
-        department: "Marketing",
-        currentPosition: "Events Marketing Manager",
-        company: "EventPro Ghana",
-        location: "Kumasi, Ghana",
-        bio: "Creative marketing professional with expertise in event planning and brand management.",
-        profileImage:
-          "https://ui-avatars.com/api/?name=Yaw+Mensah&background=2563eb&color=fff",
-        linkedin: "https://linkedin.com/in/yawmensah",
-        isMentor: false,
-        mentorshipAreas: [],
-        isSuccessStory: false,
-        successStory: "",
-        isPublic: true,
-      },
-    ]);
-    console.log(`✓ ${alumni.length} alumni profiles created`);
 
     // ── Sample Committees ──────────────────────────────────────
     console.log("Creating sample committees...");

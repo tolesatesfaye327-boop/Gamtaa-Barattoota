@@ -16,7 +16,6 @@ import SuperAdminUsers from "./pages/SuperAdminUsers";
 import LeaderDashboard from "./pages/LeaderDashboard";
 import Members from "./pages/Members";
 import Events from "./pages/Events";
-import News from "./pages/News";
 import Waaee from "./pages/Waaee";
 import Leadership from "./pages/Leadership";
 import GalleryPage from "./pages/GalleryPage";
@@ -28,22 +27,18 @@ import Yaadannoo from "./pages/Yaadannoo";
 import Koreewwan from "./pages/Koreewwan";
 import Students from "./pages/Students";
 import StudentDetail from "./pages/StudentDetail";
-import NewsDetail from "./pages/NewsDetail";
 import EventDetail from "./pages/EventDetail";
 import MemberDetail from "./pages/MemberDetail";
 import { PrivacyPolicy, TermsOfService } from "./pages/LegalPages";
 import Profile from "./pages/Profile";
 import MyEvents from "./pages/MyEvents";
 import Documents from "./pages/Documents";
-import AlumniNetwork from "./pages/AlumniNetwork";
 import Opportunities from "./pages/Opportunities";
 import Resources from "./pages/Resources";
 import Notifications from "./pages/Notifications";
 import AdminEvents from "./pages/AdminEvents";
-import AdminNews from "./pages/AdminNews";
 import AdminGallery from "./pages/AdminGallery";
 import AdminDocuments from "./pages/AdminDocuments";
-import AdminAlumni from "./pages/AdminAlumni";
 import AdminOpportunities from "./pages/AdminOpportunities";
 import AdminContact from "./pages/AdminContact";
 import AdminStudents from "./pages/AdminStudents";
@@ -54,7 +49,6 @@ import MyTickets from "./pages/MyTickets";
 import TicketDetails from "./pages/TicketDetails";
 import AdminTickets from "./pages/AdminTickets";
 import QRScanner from "./pages/QRScanner";
-import LuckyDraw from "./pages/LuckyDraw";
 import AdminTicketProducts from "./pages/AdminTicketProducts";
 import Tickets from "./pages/Tickets";
 import BuyStandaloneTicket from "./pages/BuyStandaloneTicket";
@@ -62,6 +56,7 @@ import MyPurchasedTickets from "./pages/MyPurchasedTickets";
 import WinnerPage from "./pages/WinnerPage";
 import AdminPayments from "./pages/AdminPayments";
 import MyPayments from "./pages/MyPayments";
+import AdminLuckyDraw from "./pages/AdminLuckyDraw";
 
 const ADMIN_ROLES = ["superadmin", "admin"];
 
@@ -151,8 +146,6 @@ function AppRoutes() {
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetail />} />
 
-        <Route path="/news" element={<News />} />
-        <Route path="/news/:id" element={<NewsDetail />} />
         <Route path="/gallery" element={<GalleryPage />} />
         <Route path="/leadership" element={<Leadership />} />
         <Route path="/contact" element={<Contact />} />
@@ -257,14 +250,6 @@ function AppRoutes() {
           }
         />
         <Route
-          path="/alumni"
-          element={
-            <PrivateRoute>
-              <AlumniNetwork />
-            </PrivateRoute>
-          }
-        />
-        <Route
           path="/opportunities"
           element={
             <PrivateRoute>
@@ -360,18 +345,10 @@ function AppRoutes() {
           }
         />
         <Route
-          path="/admin/tickets/:eventId/draw"
+          path="/admin/ticket-products/:ticketProductId/draw"
           element={
             <AdminRoute>
-              <LuckyDraw />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/news"
-          element={
-            <AdminRoute>
-              <AdminNews />
+              <AdminLuckyDraw />
             </AdminRoute>
           }
         />
@@ -388,14 +365,6 @@ function AppRoutes() {
           element={
             <AdminRoute>
               <AdminDocuments />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="/admin/alumni"
-          element={
-            <AdminRoute>
-              <AdminAlumni />
             </AdminRoute>
           }
         />

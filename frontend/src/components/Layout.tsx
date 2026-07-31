@@ -18,7 +18,6 @@ const EXPLORE_LINKS = [
   { to: "/events", label: "Events" },
   { to: "/tickets", label: "Tickets" },
   { to: "/winners", label: "Lucky Draw Winners" },
-  { to: "/news", label: "News" },
   { to: "/gallery", label: "Gallery" },
   { to: "/students", label: "Students" },
   { to: "/contact", label: "Contact" },
@@ -28,7 +27,6 @@ const RESOURCE_LINKS = [
   { to: "/documents", label: "Documents" },
   { to: "/resources", label: "Learning Resources" },
   { to: "/opportunities", label: "Opportunities" },
-  { to: "/alumni", label: "Alumni" },
 ];
 
 const COMMUNITY_LINKS = [{ to: "/members", label: "Members" }];
@@ -187,14 +185,11 @@ export default function Layout() {
   const manageItems = [
     { to: dashboardPath, label: "Dashboard" },
     { to: "/admin/events", label: "Event Management" },
-    { to: "/admin/tickets", label: "Event Tickets" },
     { to: "/admin/payments", label: "Payment Approvals" },
     { to: "/admin/ticket-products", label: "Ticket Products" },
-    { to: "/admin/news", label: "News Management" },
     { to: "/admin/gallery", label: "Gallery Management" },
     { to: "/admin/leadership", label: "Leadership Management" },
     { to: "/admin/documents", label: "Documents" },
-    { to: "/admin/alumni", label: "Alumni" },
     { to: "/admin/opportunities", label: "Opportunities" },
     { to: "/admin/contact", label: "Contact Messages" },
     ...(user?.role === "superadmin"
@@ -283,19 +278,16 @@ export default function Layout() {
                   <>
                     <DropdownMenu
                       label="Community"
-                      active={isActive("/members") || isActive("/alumni")}
+                       active={isActive("/members")}
                       items={[
                         ...COMMUNITY_LINKS,
-                        { to: "/alumni", label: "Alumni" },
                       ]}
                       onNavigate={go}
                     />
                     <DropdownMenu
                       label="Resources"
-                      active={RESOURCE_LINKS.filter(
-                        (l) => l.to !== "/alumni",
-                      ).some((l) => isActive(l.to))}
-                      items={RESOURCE_LINKS.filter((l) => l.to !== "/alumni")}
+                       active={RESOURCE_LINKS.some((l) => isActive(l.to))}
+                       items={RESOURCE_LINKS}
                       onNavigate={go}
                     />
                   </>
@@ -420,11 +412,6 @@ export default function Layout() {
               to: "/events",
               label: "Events",
               icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
-            },
-            {
-              to: "/news",
-              label: "News",
-              icon: "M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z",
             },
             {
               to: "/waaee",
@@ -774,14 +761,6 @@ function MobileMenu({
             >
               Members
             </Link>
-            <Link
-              to="/alumni"
-              onClick={closeMenu}
-              className={linkClass("/alumni")}
-            >
-              Alumni
-            </Link>
-
             <p className={sectionHeadingClass}>Resources</p>
             <Link
               to="/documents"
@@ -825,13 +804,6 @@ function MobileMenu({
               Event Management
             </Link>
             <Link
-              to="/admin/tickets"
-              onClick={closeMenu}
-              className={linkClass("/admin/tickets")}
-            >
-              Event Tickets
-            </Link>
-            <Link
               to="/admin/payments"
               onClick={closeMenu}
               className={linkClass("/admin/payments")}
@@ -846,13 +818,6 @@ function MobileMenu({
               Ticket Products
             </Link>
 
-            <Link
-              to="/admin/news"
-              onClick={closeMenu}
-              className={linkClass("/admin/news")}
-            >
-              News Management
-            </Link>
             <Link
               to="/admin/gallery"
               onClick={closeMenu}

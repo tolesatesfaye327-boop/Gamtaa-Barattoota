@@ -12,10 +12,8 @@ interface DashboardStats {
     completed: number;
     total: number;
   };
-  news: { published: number; draft: number; total: number };
   documents: number;
   galleries: number;
-  alumni: number;
   payments: { totalRevenue: number; pending: number };
   contacts: { unread: number; total: number };
   opportunities: { active: number; total: number };
@@ -74,14 +72,12 @@ export default function AdminDashboard() {
           color: "bg-green-500",
         },
         { label: "Events", value: stats.events.total, color: "bg-purple-500" },
-        { label: "News", value: stats.news.total, color: "bg-yellow-500" },
         { label: "Documents", value: stats.documents, color: "bg-indigo-500" },
         {
           label: "Gallery Albums",
           value: stats.galleries,
           color: "bg-pink-500",
         },
-        { label: "Alumni", value: stats.alumni, color: "bg-teal-500" },
         {
           label: "Revenue (GHS)",
           value: stats.payments.totalRevenue,
@@ -98,10 +94,8 @@ export default function AdminDashboard() {
 
   const adminActions = [
     { label: "Manage Events", path: "/admin/events", color: "bg-purple-500" },
-    { label: "News & Updates", path: "/admin/news", color: "bg-yellow-500" },
     { label: "Gallery", path: "/admin/gallery", color: "bg-pink-500" },
     { label: "Documents", path: "/admin/documents", color: "bg-indigo-500" },
-    { label: "Alumni", path: "/admin/alumni", color: "bg-teal-500" },
     {
       label: "Opportunities",
       path: "/admin/opportunities",

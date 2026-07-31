@@ -24,10 +24,8 @@ interface DashboardStats {
     completed: number;
     total: number;
   };
-  news: { published: number; draft: number; total: number };
   documents: number;
   galleries: number;
-  alumni: number;
   payments: { totalRevenue: number; pending: number };
   contacts: { unread: number; total: number };
   opportunities: { active: number; total: number };
@@ -147,26 +145,6 @@ function ActivityIcon({ type }: { type: string }) {
           </svg>
         </div>
       );
-    case "news":
-      return (
-        <div
-          className={`${base} bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400`}
-        >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
-            />
-          </svg>
-        </div>
-      );
     case "contact":
       return (
         <div
@@ -276,10 +254,8 @@ export default function SuperAdminDashboard() {
       { name: "Users", count: stats.users, fill: COLORS.blue },
       { name: "Members", count: stats.members.active, fill: COLORS.green },
       { name: "Events", count: stats.events.total, fill: COLORS.purple },
-      { name: "News", count: stats.news.total, fill: COLORS.orange },
       { name: "Documents", count: stats.documents, fill: COLORS.indigo },
       { name: "Galleries", count: stats.galleries, fill: COLORS.pink },
-      { name: "Alumni", count: stats.alumni, fill: COLORS.teal },
       {
         name: "Opportunities",
         count: stats.opportunities.total,
@@ -306,12 +282,6 @@ export default function SuperAdminDashboard() {
         value: stats.events.upcoming,
         color: PIE_COLORS[2],
       },
-      {
-        name: "Published News",
-        value: stats.news.published,
-        color: PIE_COLORS[3],
-      },
-      { name: "Draft News", value: stats.news.draft, color: PIE_COLORS[4] },
     ];
   }, [stats]);
 
@@ -357,26 +327,6 @@ export default function SuperAdminDashboard() {
       color: "from-purple-600 to-purple-700",
     },
     {
-      label: "Manage News",
-      path: "/admin/news",
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
-          />
-        </svg>
-      ),
-      color: "from-orange-600 to-orange-700",
-    },
-    {
       label: "Manage Gallery",
       path: "/admin/gallery",
       icon: (
@@ -415,26 +365,6 @@ export default function SuperAdminDashboard() {
         </svg>
       ),
       color: "from-indigo-600 to-indigo-700",
-    },
-    {
-      label: "Manage Alumni",
-      path: "/admin/alumni",
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 21v-2a4 4 0 00-4-4H9a4 4 0 00-4 4v2m6-10a4 4 0 100-8 4 4 0 000 8z"
-          />
-        </svg>
-      ),
-      color: "from-teal-600 to-teal-700",
     },
     {
       label: "Manage Opportunities",
@@ -617,27 +547,6 @@ export default function SuperAdminDashboard() {
               </svg>
             }
             subtitle={`${stats.events.upcoming} upcoming`}
-          />
-          <StatCard
-            label="News Articles"
-            value={stats.news.total}
-            gradient="bg-gradient-to-br from-orange-500 to-orange-700"
-            icon={
-              <svg
-                className="w-16 h-16"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
-                />
-              </svg>
-            }
-            subtitle={`${stats.news.published} published`}
           />
           <StatCard
             label="Revenue"
