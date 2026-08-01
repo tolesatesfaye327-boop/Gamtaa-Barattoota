@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import apiClient from "../services/api";
 import LuckyDrawWheel from "../components/LuckyDrawWheel";
+import { useAuthStore } from "../store/authStore";
 
 interface Winner {
   _id: string;
@@ -53,6 +54,7 @@ const PRIZE_CATEGORIES = [
 ];
 
 export default function WinnerPage() {
+  const { user } = useAuthStore();
   const [winners, setWinners] = useState<Winner[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,6 +102,20 @@ export default function WinnerPage() {
       setLoading(false);
     }
   };
+
+  const handleDeleteWinner = async (winnerId: string) => {
+    try {
+      await apiClient.delete(`/standalone-draw/winner/${winnerId}`);
+      // Remove from local state
+      setWinners(winners.filter(w => w._id !== winnerId));
+      alert("Winner deleted successfully!");
+    } catch (error: any) {
+      console.error("Error deleting winner:", error);
+      alert(error.response?.data?.message || "Failed to delete winner. You must be a superadmin.");
+    }
+  };
+
+  const isSuperAdmin = user?.role === "superadmin";
 
   const filteredWinners = winners.filter((w) => {
     if (!searchQuery) return true;
@@ -282,7 +298,11 @@ export default function WinnerPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredWinners.map((winner) => (
-              <WinnerCard key={winner._id} winner={winner} />
+              <WinnerCard 
+                key={winner._id} 
+                winner={winner} 
+                onDelete={isSuperAdmin ? handleDeleteWinner : undefined}
+              />
             ))}
           </div>
         )}
@@ -291,7 +311,7 @@ export default function WinnerPage() {
   );
 }
 
-function WinnerCard({ winner }: { winner: Winner }) {
+function WinnerCard({ winner, onDelete }: { winner: Winner; onDelete?: (winnerId: string) => void }) {
   const categoryConfig = PRIZE_CATEGORIES.find((c) => c.value === winner.prizeCategory) || {
     label: winner.prizeCategory,
     emoji: "🎁",
@@ -299,6 +319,17 @@ function WinnerCard({ winner }: { winner: Winner }) {
   };
 
   const drawDateObj = new Date(winner.drawDate);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!onDelete) return;
+    if (!confirm(`Are you sure you want to delete this winner record?\n\nTicket: ${winner.ticket?.ticketNumber}\nWinner: ${winner.user?.firstName} ${winner.user?.lastName}\nPrize: ${winner.prize}`)) {
+      return;
+    }
+    
+    setDeleting(true);
+    onDelete(winner._id);
+  };
 
   return (
     <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl overflow-hidden hover:border-yellow-500/50 transition-all duration-300 group flex flex-col justify-between">
@@ -360,15 +391,27 @@ function WinnerCard({ winner }: { winner: Winner }) {
           </svg>
           Verified Lucky Draw
         </span>
-        {winner.claimed ? (
-          <span className="px-2 py-0.5 bg-green-900/30 text-green-400 rounded border border-green-500/30 font-medium">
-            Claimed
-          </span>
-        ) : (
-          <span className="px-2 py-0.5 bg-yellow-900/30 text-yellow-400 rounded border border-yellow-500/30 font-medium">
-            Official Winner
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {winner.claimed ? (
+            <span className="px-2 py-0.5 bg-green-900/30 text-green-400 rounded border border-green-500/30 font-medium">
+              Claimed
+            </span>
+          ) : (
+            <span className="px-2 py-0.5 bg-yellow-900/30 text-yellow-400 rounded border border-yellow-500/30 font-medium">
+              Official Winner
+            </span>
+          )}
+          {onDelete && (
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="px-2 py-0.5 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded border border-red-500/30 font-medium transition-colors disabled:opacity-50"
+              title="Delete winner record"
+            >
+              {deleting ? "..." : "🗑️"}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

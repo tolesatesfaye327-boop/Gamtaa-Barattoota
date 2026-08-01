@@ -148,4 +148,19 @@ router.patch("/claim/:winnerId", authenticate, authorize(ADMIN_ROLES), async (re
   res.json({ message: "Prize marked as claimed", winner });
 });
 
+// Delete winner (superadmin only)
+router.delete("/winner/:winnerId", authenticate, authorize(["superadmin"]), async (req: Request, res: Response) => {
+  try {
+    const winner = await StandaloneWinner.findByIdAndDelete(req.params.winnerId);
+    if (!winner) { 
+      res.status(404).json({ message: "Winner not found" }); 
+      return; 
+    }
+    res.json({ message: "Winner deleted successfully", winner });
+  } catch (error) {
+    console.error("Error deleting winner:", error);
+    res.status(500).json({ message: "Failed to delete winner" });
+  }
+});
+
 export default router;
