@@ -17,21 +17,14 @@ const EXPLORE_LINKS = [
   { to: "/events", label: "Events" },
   { to: "/tickets", label: "Tickets" },
   { to: "/winners", label: "Lucky Draw Winners" },
-  { to: "/news", label: "News" },
   { to: "/gallery", label: "Gallery" },
   { to: "/students", label: "Students" },
   { to: "/contact", label: "Contact" },
 ];
 
-const RESOURCE_LINKS = [
-  { to: "/documents", label: "Documents" },
-  { to: "/resources", label: "Learning Resources" },
-  { to: "/opportunities", label: "Opportunities" },
-  { to: "/alumni", label: "Alumni" },
-];
-
 const COMMUNITY_LINKS = [
   { to: "/members", label: "Members" },
+  { to: "/documents", label: "Documents" },
 ];
 
 function NavLinkButton({
@@ -190,12 +183,9 @@ export default function Layout() {
     { to: "/admin/events", label: "Event Management" },
     { to: "/admin/payments", label: "Payment Approvals" },
     { to: "/admin/ticket-products", label: "Ticket Products" },
-    { to: "/admin/news", label: "News Management" },
     { to: "/admin/gallery", label: "Gallery Management" },
     { to: "/admin/leadership", label: "Leadership Management" },
     { to: "/admin/documents", label: "Documents" },
-    { to: "/admin/alumni", label: "Alumni" },
-    { to: "/admin/opportunities", label: "Opportunities" },
     { to: "/admin/contact", label: "Contact Messages" },
     ...(user?.role === "superadmin"
       ? [
@@ -281,12 +271,6 @@ export default function Layout() {
 
                 {user && (
                   <>
-                    <DropdownMenu
-                      label="Resources"
-                      active={RESOURCE_LINKS.some((l) => isActive(l.to))}
-                      items={RESOURCE_LINKS}
-                      onNavigate={go}
-                    />
                     <DropdownMenu
                       label="Community"
                       active={COMMUNITY_LINKS.some((l) => isActive(l.to))}
