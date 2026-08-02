@@ -97,7 +97,7 @@ export default function LuckyDrawWheel({
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative w-full max-w-[420px] aspect-square">
+      <div className="relative aspect-square w-full max-w-[520px]">
         <div className="absolute left-1/2 top-[-15px] z-20 -translate-x-1/2 border-l-[18px] border-r-[18px] border-t-[40px] border-l-transparent border-r-transparent border-t-[#f6b000] drop-shadow-lg" />
         <canvas
           ref={canvasRef}

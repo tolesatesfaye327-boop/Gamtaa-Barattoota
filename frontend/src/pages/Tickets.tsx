@@ -80,11 +80,6 @@ export default function Tickets() {
       product.isActive &&
       (selectedCategory === "all" || product.category === selectedCategory),
   );
-  const availableCount = products.reduce(
-    (total, product) => total + Math.max(product.availableQuantity - product.soldQuantity, 0),
-    0,
-  );
-
   if (loading) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
@@ -100,64 +95,47 @@ export default function Tickets() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      <section className="relative overflow-hidden bg-slate-950 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(45,126,187,.35),transparent_35%),radial-gradient(circle_at_85%_80%,rgba(240,138,55,.25),transparent_35%)]" />
-        <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-          <div className="max-w-3xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-sky-200">
-              <span className="h-2 w-2 rounded-full bg-emerald-400" /> Official ticket desk
-            </span>
-            <h1 className="mt-6 text-4xl font-black tracking-tight sm:text-6xl">
-              Access the moments that matter.
-            </h1>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
-              Secure your membership, services, and special offers in a few simple steps. Every purchase gives you a clear digital ticket and receipt.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3 text-sm">
-              <span className="rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-slate-200">Secure checkout</span>
-              <span className="rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-slate-200">Instant ticket delivery</span>
-              <Link to="/my-tickets" className="rounded-xl bg-white px-4 py-3 font-bold text-slate-950 transition hover:bg-sky-100">View my tickets</Link>
-            </div>
-          </div>
-          <div className="mt-10 grid max-w-xl grid-cols-2 gap-3 sm:grid-cols-3">
-            <HeroStat value={String(products.filter((product) => product.isActive).length)} label="Active offers" />
-            <HeroStat value={String(availableCount)} label="Tickets available" />
-            <HeroStat value="24/7" label="Digital access" />
-          </div>
-        </div>
-      </section>
-
       {liveDraws.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <div className="mb-6 flex items-end justify-between gap-4">
+        <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+          <div className="relative mb-6 overflow-hidden rounded-[2rem] bg-slate-950 px-6 py-8 text-white shadow-2xl shadow-slate-300/40 dark:shadow-black/30 sm:px-10 sm:py-10">
+            <div className="absolute -right-24 -top-40 h-96 w-96 rounded-full bg-amber-500/20 blur-3xl" />
+            <div className="absolute -bottom-48 left-1/3 h-96 w-96 rounded-full bg-primary-600/20 blur-3xl" />
+            <div className="relative flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
             <div>
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-amber-600 dark:text-amber-300">Live experience</span>
-              <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 dark:text-white">Lucky draw spinner</h2>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Spin an active draw to see which eligible ticket the wheel selects.</p>
+              <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-amber-300"><span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" /> Live experience</span>
+              <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Lucky draw spinner</h2>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300">Watch an active draw unfold in real time. Every eligible ticket has an equal chance to be selected.</p>
             </div>
-            <span className="hidden rounded-full bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-600 sm:inline-flex dark:text-emerald-300">LIVE</span>
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-emerald-300"><span className="h-2 w-2 rounded-full bg-emerald-400" /> Live now</span>
+            </div>
           </div>
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-6">
             {liveDraws.map((draw) => (
-              <article key={draw.event._id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/40 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/20 sm:p-8">
-                <div className="mb-6 flex items-start justify-between gap-4">
-                  <div>
-                    <span className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-600 dark:text-emerald-300">Public draw</span>
-                    <h3 className="mt-2 text-xl font-black text-slate-950 dark:text-white">{draw.event.title}</h3>
+              <article key={draw.event._id} className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/20 sm:p-8 lg:p-10">
+                <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-14">
+                  <div className="order-2 lg:order-1">
+                    <LuckyDrawWheel
+                      tickets={draw.tickets.map((ticket) => ticket.ticketNumber)}
+                      autoSpin={draw.isDrawing}
+                      showButton={false}
+                      targetTicket={draw.selectedTicket}
+                    />
                   </div>
-                  <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-300">{draw.tickets.length} eligible</span>
+                  <div className="order-1 lg:order-2 lg:border-l lg:border-slate-200 lg:pl-8 lg:dark:border-white/10">
+                    <span className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-600 dark:text-emerald-300">Public draw</span>
+                    <h3 className="mt-3 text-2xl font-black leading-tight text-slate-950 dark:text-white">{draw.event.title}</h3>
+                    <div className="mt-6 flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/[0.04]">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-300"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 3v18m9-9H3" /></svg></span>
+                      <div><p className="text-2xl font-black text-slate-950 dark:text-white">{draw.tickets.length}</p><p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Eligible tickets</p></div>
+                    </div>
+                    <p className="mt-5 text-sm leading-6 text-slate-500 dark:text-slate-400">The wheel selects from every eligible ticket in this live draw.</p>
+                    {draw.isDrawing && (
+                      <p className="mt-5 rounded-xl bg-amber-500/10 px-3 py-2.5 text-sm font-semibold leading-5 text-amber-600 dark:text-amber-300">
+                        Spinning live{draw.currentPrize ? ` for ${draw.currentPrize}` : ""}.
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <LuckyDrawWheel
-                  tickets={draw.tickets.map((ticket) => ticket.ticketNumber)}
-                  autoSpin={draw.isDrawing}
-                  showButton={false}
-                  targetTicket={draw.selectedTicket}
-                />
-                {draw.isDrawing && (
-                  <p className="mt-4 text-center text-sm font-semibold text-amber-600 dark:text-amber-300">
-                    The draw is spinning live{draw.currentPrize ? ` for ${draw.currentPrize}` : ""}.
-                  </p>
-                )}
               </article>
             ))}
           </div>
@@ -193,10 +171,6 @@ export default function Tickets() {
       </main>
     </div>
   );
-}
-
-function HeroStat({ value, label }: { value: string; label: string }) {
-  return <div className="rounded-2xl border border-white/10 bg-white/[0.08] px-4 py-3"><p className="text-xl font-black text-white">{value}</p><p className="mt-1 text-xs text-slate-400">{label}</p></div>;
 }
 
 function TicketCard({ product }: { product: TicketProduct }) {
