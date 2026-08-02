@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import { authenticate, authorize } from "../middleware/auth.js";
 import {
   PaymentSettings,
@@ -77,6 +78,11 @@ router.put(
   authorize(["admin", "superadmin"]),
   async (req, res) => {
     try {
+      const userId = req.userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
       const { accounts } = req.body;
 
       if (!accounts || !Array.isArray(accounts)) {
@@ -111,12 +117,12 @@ router.put(
         // Create new settings
         settings = await PaymentSettings.create({
           accounts,
-          lastUpdatedBy: req.userId,
+          lastUpdatedBy: new mongoose.Types.ObjectId(userId),
         });
       } else {
         // Update existing settings
         settings.accounts = accounts;
-        settings.lastUpdatedBy = req.userId;
+        settings.lastUpdatedBy = new mongoose.Types.ObjectId(userId);
         await settings.save();
       }
 
@@ -143,16 +149,21 @@ router.post(
   authorize(["superadmin"]),
   async (req, res) => {
     try {
+      const userId = req.userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
       let settings = await PaymentSettings.findOne();
 
       if (!settings) {
         settings = await PaymentSettings.create({
           accounts: DEFAULT_PAYMENT_ACCOUNTS,
-          lastUpdatedBy: req.userId,
+          lastUpdatedBy: new mongoose.Types.ObjectId(userId),
         });
       } else {
         settings.accounts = DEFAULT_PAYMENT_ACCOUNTS;
-        settings.lastUpdatedBy = req.userId;
+        settings.lastUpdatedBy = new mongoose.Types.ObjectId(userId);
         await settings.save();
       }
 
