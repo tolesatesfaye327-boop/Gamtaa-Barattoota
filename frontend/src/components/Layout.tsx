@@ -182,6 +182,7 @@ export default function Layout() {
     { to: dashboardPath, label: "Dashboard" },
     { to: "/admin/events", label: "Event Management" },
     { to: "/admin/payments", label: "Payment Approvals" },
+    { to: "/admin/payment-settings", label: "Payment Settings" },
     { to: "/admin/ticket-products", label: "Ticket Products" },
     { to: "/admin/gallery", label: "Gallery Management" },
     { to: "/admin/leadership", label: "Leadership Management" },
@@ -777,6 +778,13 @@ function MobileMenu({
               className={linkClass("/admin/payments")}
             >
               Payment Approvals
+            </Link>
+            <Link
+              to="/admin/payment-settings"
+              onClick={closeMenu}
+              className={linkClass("/admin/payment-settings")}
+            >
+              Payment Settings
             </Link>
             <Link
               to="/admin/ticket-products"

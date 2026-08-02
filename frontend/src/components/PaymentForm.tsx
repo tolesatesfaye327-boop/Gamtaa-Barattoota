@@ -1,10 +1,29 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import {
-  ASSOCIATION_PAYMENT_ACCOUNTS,
-  PaymentMethodId,
-  getPaymentAccount,
-} from "../data/paymentAccounts";
+import apiClient from "../services/api";
+
+export type PaymentMethodId =
+  | "telebirr"
+  | "mpesa"
+  | "cbebirr"
+  | "bank_transfer";
+
+interface PaymentAccount {
+  id: PaymentMethodId;
+  label: string;
+  shortLabel: string;
+  description: string;
+  accountName: string;
+  accountNumber: string;
+  bankName?: string;
+  branch?: string;
+  payerNameInstruction?: string;
+  instructions: string[];
+  requiresPhone: boolean;
+  enabled: boolean;
+  accent: string;
+  iconPath: string;
+}
 
 export interface PaymentFormValues {
   paymentMethod: PaymentMethodId;
@@ -125,23 +144,48 @@ export default function PaymentForm({
   submitLabel,
 }: PaymentFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [accounts, setAccounts] = useState<PaymentAccount[]>([]);
+  const [loadingAccounts, setLoadingAccounts] = useState(true);
   const [paymentMethod, setPaymentMethod] =
     useState<PaymentMethodId>("telebirr");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [transactionReference, setTransactionReference] = useState("");
-  const [payerName, setPayerName] = useState(defaultPayerName);
   const [notes, setNotes] = useState("");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string>("");
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [localError, setLocalError] = useState("");
 
-  const account = getPaymentAccount(paymentMethod)!;
+  // Fetch payment accounts from API
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        setLoadingAccounts(true);
+        const response = await apiClient.get("/payment-settings");
+        const fetchedAccounts = response.data.accounts || [];
+        
+        if (fetchedAccounts.length > 0) {
+          setAccounts(fetchedAccounts);
+          // Set first enabled account as default
+          const firstEnabled = fetchedAccounts.find((acc: PaymentAccount) => acc.enabled);
+          if (firstEnabled) {
+            setPaymentMethod(firstEnabled.id);
+          }
+        } else {
+          // Fallback to default accounts if none configured
+          setAccounts([]);
+          setLocalError("Payment accounts not configured. Please contact admin.");
+        }
+      } catch (err) {
+        console.error("Error fetching payment accounts:", err);
+        setLocalError("Failed to load payment methods. Please try again.");
+      } finally {
+        setLoadingAccounts(false);
+      }
+    };
 
-  const validatePhone = (phone: string) => {
-    const phoneRegex = /^(\+251|0)?[79]\d{8}$/;
-    return phoneRegex.test(phone.replace(/\s/g, ""));
-  };
+    fetchAccounts();
+  }, []);
+
+  const account = accounts.find((acc) => acc.id === paymentMethod);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -183,6 +227,11 @@ export default function PaymentForm({
     e.preventDefault();
     setLocalError("");
 
+    if (!account) {
+      setLocalError("Please select a valid payment method");
+      return;
+    }
+
     if (!agreeTerms) {
       setLocalError("Please agree to the terms and conditions");
       return;
@@ -195,47 +244,70 @@ export default function PaymentForm({
       return;
     }
 
-    if (!transactionReference.trim()) {
-      setLocalError("Please enter your payment transaction / reference number");
-      return;
-    }
-
-    if (transactionReference.trim().length < 4) {
-      setLocalError(
-        "Transaction reference looks too short. Please check and try again.",
-      );
-      return;
-    }
-
-    if (account.requiresPhone) {
-      if (!phoneNumber.trim()) {
-        setLocalError("Please enter the phone number you paid from");
-        return;
-      }
-      if (!validatePhone(phoneNumber)) {
-        setLocalError(
-          "Please enter a valid Ethiopian phone number (e.g. 09xxxxxxxx)",
-        );
-        return;
-      }
-    }
-
-    if (!payerName.trim()) {
-      setLocalError("Please enter the name used on the payment");
-      return;
-    }
-
     await onSubmit({
       paymentMethod,
-      phoneNumber: phoneNumber.trim(),
-      transactionReference: transactionReference.trim(),
-      payerName: payerName.trim(),
+      phoneNumber: "",
+      transactionReference: "",
+      payerName: defaultPayerName,
       notes: notes.trim(),
       receiptFile,
     });
   };
 
   const displayError = localError || error;
+
+  // Show loading state while fetching accounts
+  if (loadingAccounts) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-400 text-sm">Loading payment methods...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if no accounts available
+  if (accounts.length === 0) {
+    return (
+      <div className="p-6 bg-red-900/30 border border-red-500/50 rounded-lg text-center">
+        <svg
+          className="w-12 h-12 text-red-400 mx-auto mb-3"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <p className="text-red-400 font-medium mb-2">Payment Methods Not Available</p>
+        <p className="text-gray-400 text-sm">
+          Payment accounts have not been configured yet. Please contact the administrator.
+        </p>
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="mt-4 px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
+          >
+            Go Back
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  if (!account) {
+    return (
+      <div className="p-6 bg-red-900/30 border border-red-500/50 rounded-lg text-center">
+        <p className="text-red-400">Selected payment method not available</p>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -279,7 +351,7 @@ export default function PaymentForm({
           Select Payment Method
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {ASSOCIATION_PAYMENT_ACCOUNTS.map((method) => {
+          {accounts.map((method) => {
             const selected = paymentMethod === method.id;
             return (
               <button
@@ -493,54 +565,8 @@ export default function PaymentForm({
       {/* Payer details */}
       <div className="space-y-4">
         <h4 className="text-sm font-semibold text-white">
-          Confirm your payment
+          Upload your payment proof
         </h4>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            Name on payment <span className="text-red-400">*</span>
-          </label>
-          <input
-            type="text"
-            value={payerName}
-            onChange={(e) => setPayerName(e.target.value)}
-            placeholder="Full name used when sending money"
-            className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
-          />
-        </div>
-
-        {account.requiresPhone && (
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Phone number you paid from <span className="text-red-400">*</span>
-            </label>
-            <input
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="09xxxxxxxx"
-              className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
-            />
-          </div>
-        )}
-
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            Transaction / Reference number{" "}
-            <span className="text-red-400">*</span>
-          </label>
-          <input
-            type="text"
-            value={transactionReference}
-            onChange={(e) => setTransactionReference(e.target.value)}
-            placeholder={
-              account.id === "bank_transfer"
-                ? "e.g. FT12345ABC or bank slip number"
-                : "e.g. transaction ID from SMS"
-            }
-            className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 font-mono"
-          />
-        </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
