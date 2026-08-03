@@ -37,7 +37,7 @@ router.get("/", async (req, res) => {
 });
 
 /**
- * GET /api/admin/payment-settings
+ * GET /api/payment-settings/admin
  * Admin only - get all payment settings including disabled accounts
  */
 router.get(
@@ -69,7 +69,7 @@ router.get(
 );
 
 /**
- * PUT /api/admin/payment-settings
+ * PUT /api/payment-settings/admin
  * Admin only - update payment account settings
  */
 router.put(
@@ -113,16 +113,18 @@ router.put(
 
       let settings = await PaymentSettings.findOne();
 
+      const userObjectId = new mongoose.Types.ObjectId(userId) as any;
+
       if (!settings) {
         // Create new settings
         settings = await PaymentSettings.create({
           accounts,
-          lastUpdatedBy: new mongoose.Types.ObjectId(userId),
+          lastUpdatedBy: userObjectId,
         });
       } else {
         // Update existing settings
         settings.accounts = accounts;
-        settings.lastUpdatedBy = new mongoose.Types.ObjectId(userId);
+        settings.lastUpdatedBy = userObjectId;
         await settings.save();
       }
 
@@ -140,7 +142,7 @@ router.put(
 );
 
 /**
- * POST /api/admin/payment-settings/reset
+ * POST /api/payment-settings/admin/reset
  * Admin only - reset to default payment settings
  */
 router.post(
@@ -156,14 +158,16 @@ router.post(
 
       let settings = await PaymentSettings.findOne();
 
+      const userObjectId = new mongoose.Types.ObjectId(userId) as any;
+
       if (!settings) {
         settings = await PaymentSettings.create({
           accounts: DEFAULT_PAYMENT_ACCOUNTS,
-          lastUpdatedBy: new mongoose.Types.ObjectId(userId),
+          lastUpdatedBy: userObjectId,
         });
       } else {
         settings.accounts = DEFAULT_PAYMENT_ACCOUNTS;
-        settings.lastUpdatedBy = new mongoose.Types.ObjectId(userId);
+        settings.lastUpdatedBy = userObjectId;
         await settings.save();
       }
 
