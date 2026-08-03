@@ -401,7 +401,7 @@ function TicketCard({ ticket }: { ticket: Ticket }) {
           {/* Actions */}
           <div className="flex gap-2">
             <Link
-              to={`/tickets/${ticket._id}`}
+              to={`/my-tickets/${ticket._id}`}
               className="flex-1 text-center px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-semibold rounded-lg transition-all shadow-lg shadow-blue-600/25"
             >
               View Details
