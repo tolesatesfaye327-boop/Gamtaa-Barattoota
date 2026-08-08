@@ -62,34 +62,32 @@ export default function Profile() {
 
   const fetchProfile = async () => {
     try {
-      const response = await apiClient.get("/members");
-      const data = response.data;
-      if (Array.isArray(data)) {
-        const myProfile = data.find(
-          (m: MemberProfile) => m.email === user?.email
-        );
-        if (myProfile) {
-          setProfile(myProfile);
-          setFormData({
-            fullName: myProfile.fullName || "",
-            email: myProfile.email || user?.email || "",
-            phone: myProfile.phone || "",
-            department: myProfile.department || "",
-            designation: myProfile.designation || "",
-            bio: myProfile.bio || "",
-          });
-          setProfileImageUrl(myProfile.profileImage || "");
-        }
-      }
+      const response = await apiClient.get("/members/me");
+      const myProfile = response.data;
+      setProfile(myProfile);
+      setFormData({
+        fullName: myProfile.fullName || "",
+        email: myProfile.email || user?.email || "",
+        phone: myProfile.phone || "",
+        department: myProfile.department || "",
+        designation: myProfile.designation || "",
+        bio: myProfile.bio || "",
+      });
+      setProfileImageUrl(myProfile.profileImage || "");
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to load profile");
+      if (err.response?.status === 404) {
+        // No member profile exists yet — user can create one
+        setProfile(null);
+      } else {
+        setError(err.response?.data?.message || "Failed to load profile");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -117,9 +115,7 @@ export default function Profile() {
       }
       fetchProfile();
     } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Failed to save profile"
-      );
+      setError(err.response?.data?.message || "Failed to save profile");
     } finally {
       setSaving(false);
     }
@@ -130,11 +126,13 @@ export default function Profile() {
       ?.split(" ")
       .map((n) => n[0])
       .join("")
-      .toUpperCase() || user?.firstName?.[0]?.toUpperCase() || "?";
+      .toUpperCase() ||
+    user?.firstName?.[0]?.toUpperCase() ||
+    "?";
 
   if (loading) {
     return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div>
           <h1 className="text-4xl font-bold text-white">My Profile</h1>
           <div className="mt-2 h-1 w-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
@@ -153,8 +151,18 @@ export default function Profile() {
 
       {error && (
         <div className="bg-red-900/30 border border-red-500/30 text-red-400 px-5 py-4 rounded-xl flex items-center gap-3">
-          <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg
+            className="w-5 h-5 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
           <span>{error}</span>
         </div>
@@ -162,8 +170,18 @@ export default function Profile() {
 
       {success && (
         <div className="bg-green-900/30 border border-green-500/30 text-green-400 px-5 py-4 rounded-xl flex items-center gap-3">
-          <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg
+            className="w-5 h-5 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
           <span>{success}</span>
         </div>
@@ -175,14 +193,20 @@ export default function Profile() {
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-2xl font-bold text-white mb-4">
               {initials}
             </div>
-            <h2 className="text-2xl font-bold text-white">Complete Your Profile</h2>
-            <p className="text-gray-400 mt-1">Fill in your details to get started</p>
+            <h2 className="text-2xl font-bold text-white">
+              Complete Your Profile
+            </h2>
+            <p className="text-gray-400 mt-1">
+              Fill in your details to get started
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Full Name</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                  Full Name
+                </label>
                 <input
                   type="text"
                   name="fullName"
@@ -194,7 +218,9 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Email</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                  Email
+                </label>
                 <input
                   type="email"
                   name="email"
@@ -205,7 +231,9 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Phone</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                  Phone
+                </label>
                 <input
                   type="text"
                   name="phone"
@@ -216,7 +244,9 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Department</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                  Department
+                </label>
                 <input
                   type="text"
                   name="department"
@@ -227,7 +257,9 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Designation</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                  Designation
+                </label>
                 <input
                   type="text"
                   name="designation"
@@ -238,7 +270,9 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Profile Image URL</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                  Profile Image URL
+                </label>
                 <input
                   type="text"
                   value={profileImageUrl}
@@ -261,7 +295,9 @@ export default function Profile() {
               </div>
             )}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Bio</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                Bio
+              </label>
               <textarea
                 name="bio"
                 value={formData.bio}
@@ -287,7 +323,9 @@ export default function Profile() {
           <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Full Name</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                  Full Name
+                </label>
                 <input
                   type="text"
                   name="fullName"
@@ -298,7 +336,9 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Email</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                  Email
+                </label>
                 <input
                   type="email"
                   name="email"
@@ -309,7 +349,9 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Phone</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                  Phone
+                </label>
                 <input
                   type="text"
                   name="phone"
@@ -319,7 +361,9 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Department</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                  Department
+                </label>
                 <input
                   type="text"
                   name="department"
@@ -329,7 +373,9 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Designation</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                  Designation
+                </label>
                 <input
                   type="text"
                   name="designation"
@@ -339,7 +385,9 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Profile Image URL</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                  Profile Image URL
+                </label>
                 <input
                   type="text"
                   value={profileImageUrl}
@@ -361,7 +409,9 @@ export default function Profile() {
               </div>
             )}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Bio</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                Bio
+              </label>
               <textarea
                 name="bio"
                 value={formData.bio}
@@ -400,7 +450,9 @@ export default function Profile() {
                 {initials}
               </div>
               <div className="flex-1 text-center sm:text-left">
-                <h2 className="text-2xl font-bold text-white">{profile.fullName}</h2>
+                <h2 className="text-2xl font-bold text-white">
+                  {profile.fullName}
+                </h2>
                 <p className="text-gray-400 mt-1">{profile.email}</p>
                 <span className="inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium border bg-blue-500/20 text-blue-400 border-blue-500/30">
                   {user?.role || "Member"}
@@ -419,23 +471,35 @@ export default function Profile() {
             <h3 className="text-xl font-bold text-white mb-5">Details</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Phone</p>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Phone
+                </p>
                 <p className="text-white mt-1">{profile.phone || "—"}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Department</p>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Department
+                </p>
                 <p className="text-white mt-1">{profile.department || "—"}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Designation</p>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Designation
+                </p>
                 <p className="text-white mt-1">{profile.designation || "—"}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Membership No.</p>
-                <p className="text-white mt-1">{profile.membershipNumber || "—"}</p>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Membership No.
+                </p>
+                <p className="text-white mt-1">
+                  {profile.membershipNumber || "—"}
+                </p>
               </div>
               <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</p>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Status
+                </p>
                 <span
                   className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium ${
                     profile.membershipStatus === "active"
@@ -449,10 +513,14 @@ export default function Profile() {
                 </span>
               </div>
               <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Joined</p>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Joined
+                </p>
                 <p className="text-white mt-1">
                   {profile._id
-                    ? new Date(profile._id.substring(0, 8) + "Z").toLocaleDateString("en-GB", {
+                    ? new Date(
+                        profile._id.substring(0, 8) + "Z",
+                      ).toLocaleDateString("en-GB", {
                         day: "numeric",
                         month: "short",
                         year: "numeric",

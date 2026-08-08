@@ -54,6 +54,7 @@ import AdminPayments from "./pages/AdminPayments";
 import MyPayments from "./pages/MyPayments";
 import AdminLuckyDraw from "./pages/AdminLuckyDraw";
 import AdminPaymentSettings from "./pages/AdminPaymentSettings";
+import Developers from "./pages/Developers";
 
 const ADMIN_ROLES = ["superadmin", "admin"];
 
@@ -150,6 +151,7 @@ function AppRoutes() {
         <Route path="/galata" element={<Galata />} />
         <Route path="/ergaa" element={<Ergaa />} />
         <Route path="/koreewwan" element={<Koreewwan />} />
+        <Route path="/developers" element={<Developers />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
 

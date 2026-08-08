@@ -25,6 +25,7 @@ const EXPLORE_LINKS = [
 const COMMUNITY_LINKS = [
   { to: "/members", label: "Members" },
   { to: "/documents", label: "Documents" },
+  { to: "/developers", label: "Developers" },
 ];
 
 function NavLinkButton({
@@ -338,11 +339,25 @@ export default function Layout() {
                   <Link
                     to="/notifications"
                     className="relative flex h-10 w-10 items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-100 hover:text-primary-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-primary-400"
-                    aria-label={unreadCount > 0 ? `${unreadCount} unread notifications` : "Notifications"}
+                    aria-label={
+                      unreadCount > 0
+                        ? `${unreadCount} unread notifications`
+                        : "Notifications"
+                    }
                     title="Notifications"
                   >
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 17h5l-1.5-2.25A4 4 0 0118 12.53V10a6 6 0 00-12 0v2.53a4 4 0 01-.5 2.22L4 17h5m6 0a3 3 0 01-6 0m6 0H9" />
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.8}
+                        d="M15 17h5l-1.5-2.25A4 4 0 0118 12.53V10a6 6 0 00-12 0v2.53a4 4 0 01-.5 2.22L4 17h5m6 0a3 3 0 01-6 0m6 0H9"
+                      />
                     </svg>
                     {unreadCount > 0 && (
                       <span className="absolute right-1 top-1 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-black leading-4 text-white ring-2 ring-white dark:ring-dark-bg">
@@ -773,6 +788,13 @@ function MobileMenu({
               className={linkClass("/resources")}
             >
               Learning Resources
+            </Link>
+            <Link
+              to="/developers"
+              onClick={closeMenu}
+              className={linkClass("/developers")}
+            >
+              Developers
             </Link>
           </>
         )}
