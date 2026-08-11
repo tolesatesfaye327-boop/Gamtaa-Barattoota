@@ -7,7 +7,7 @@ export default function Developers() {
       "With a strong focus on clean, maintainable code and user-centered design, he crafts modern web applications that are fast, accessible, and reliable. This platform is a reflection of his commitment to using technology to serve and unite the community.",
     ],
     portfolio: "https://my-portfolio-lastport.vercel.app/",
-    photo: "developer.jpg",
+    photo: "/profile/developer.jpg",
     skills: [
       "React & TypeScript",
       "Node.js & Express",
