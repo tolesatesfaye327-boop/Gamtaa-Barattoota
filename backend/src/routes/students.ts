@@ -1,8 +1,36 @@
 import express, { Router, Request, Response } from "express";
+import multer from "multer";
 import { Student } from "../models/Student.js";
 import { authenticate, authorize } from "../middleware/auth.js";
+import { profileStorage } from "../config/cloudinary.js";
 
 const router: Router = express.Router();
+
+// Configure multer with Cloudinary profile storage
+const upload = multer({
+  storage: profileStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+});
+
+// Upload student profile image (authenticated)
+router.post(
+  "/upload-image",
+  authenticate,
+  upload.single("image"),
+  async (req: Request, res: Response) => {
+    try {
+      if (!req.file) {
+        res.status(400).json({ message: "No image file provided" });
+        return;
+      }
+      // Cloudinary provides secure URL in file.path
+      const url = (req.file as any).path;
+      res.json({ message: "Image uploaded successfully", url });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to upload image", error });
+    }
+  },
+);
 
 // Get all students (public)
 router.get("/", async (req: Request, res: Response) => {
@@ -11,6 +39,20 @@ router.get("/", async (req: Request, res: Response) => {
     res.json(students);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch students", error });
+  }
+});
+
+// Get current user's own student profile (authenticated)
+router.get("/me", authenticate, async (req: Request, res: Response) => {
+  try {
+    const student = await Student.findOne({ userId: req.userId });
+    if (!student) {
+      res.status(404).json({ message: "Student profile not found" });
+      return;
+    }
+    res.json(student);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch student profile", error });
   }
 });
 
@@ -46,6 +88,57 @@ router.post("/", authenticate, async (req: Request, res: Response) => {
       bio,
       image,
     } = req.body;
+
+    // Prevent duplicate profiles: check if this user already has a student profile
+    const existingStudent = await Student.findOne({ userId: req.userId });
+    if (existingStudent) {
+      // If a profile already exists, update it instead of creating a duplicate
+      const updatedStudent = await Student.findByIdAndUpdate(
+        existingStudent._id,
+        {
+          $set: {
+            name,
+            field,
+            year,
+            village,
+            school,
+            phone,
+            email,
+            telegram,
+            entry,
+            role,
+            message,
+            bio,
+            image,
+          },
+        },
+        { new: true },
+      );
+      res.status(200).json({
+        message:
+          "You already have a student profile. If you want, you can update it.",
+        student: updatedStudent,
+      });
+      return;
+    }
+
+    // Check if another student with the same full name already exists
+    const nameMatch = await Student.findOne({
+      name: {
+        $regex: new RegExp(
+          `^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+          "i",
+        ),
+      },
+    });
+    if (nameMatch) {
+      res.status(409).json({
+        message:
+          "You already have a student profile with this name. If you want, you can update it.",
+        student: nameMatch,
+      });
+      return;
+    }
 
     const student = await Student.create({
       userId: req.userId,

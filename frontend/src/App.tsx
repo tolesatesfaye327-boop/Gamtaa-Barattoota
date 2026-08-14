@@ -26,6 +26,7 @@ import Ergaa from "./pages/Ergaa";
 import Koreewwan from "./pages/Koreewwan";
 import Students from "./pages/Students";
 import StudentDetail from "./pages/StudentDetail";
+import MyStudentProfile from "./pages/MyStudentProfile";
 import EventDetail from "./pages/EventDetail";
 import MemberDetail from "./pages/MemberDetail";
 import { PrivacyPolicy, TermsOfService } from "./pages/LegalPages";
@@ -212,6 +213,14 @@ function AppRoutes() {
           element={
             <PrivateRoute>
               <StudentDetail />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/my-student-profile"
+          element={
+            <PrivateRoute>
+              <MyStudentProfile />
             </PrivateRoute>
           }
         />

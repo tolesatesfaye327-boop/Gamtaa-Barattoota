@@ -583,11 +583,11 @@ function UserDropdown({
             My Payments
           </Link>
           <Link
-            to="/profile"
+            to="/my-student-profile"
             onClick={() => setOpen(false)}
             className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
-            Profile
+            My Student Profile
           </Link>
 
           <Link
@@ -752,11 +752,11 @@ function MobileMenu({
               My Payments
             </Link>
             <Link
-              to="/profile"
+              to="/my-student-profile"
               onClick={closeMenu}
-              className={linkClass("/profile")}
+              className={linkClass("/my-student-profile")}
             >
-              Profile
+              My Student Profile
             </Link>
 
             <Link
