@@ -70,7 +70,7 @@ router.get("/:id", async (req: Request, res: Response) => {
   }
 });
 
-// Create student (authenticated - admin/superadmin)
+// Create student (authenticated - ALL USERS can create their own profile)
 router.post("/", authenticate, async (req: Request, res: Response) => {
   try {
     const {
@@ -92,54 +92,16 @@ router.post("/", authenticate, async (req: Request, res: Response) => {
     // Prevent duplicate profiles: check if this user already has a student profile
     const existingStudent = await Student.findOne({ userId: req.userId });
     if (existingStudent) {
-      // If a profile already exists, update it instead of creating a duplicate
-      const updatedStudent = await Student.findByIdAndUpdate(
-        existingStudent._id,
-        {
-          $set: {
-            name,
-            field,
-            year,
-            village,
-            school,
-            phone,
-            email,
-            telegram,
-            entry,
-            role,
-            message,
-            bio,
-            image,
-          },
-        },
-        { new: true },
-      );
-      res.status(200).json({
-        message:
-          "You already have a student profile. If you want, you can update it.",
-        student: updatedStudent,
-      });
-      return;
-    }
-
-    // Check if another student with the same full name already exists
-    const nameMatch = await Student.findOne({
-      name: {
-        $regex: new RegExp(
-          `^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
-          "i",
-        ),
-      },
-    });
-    if (nameMatch) {
       res.status(409).json({
         message:
-          "You already have a student profile with this name. If you want, you can update it.",
-        student: nameMatch,
+          "You already have a student profile. Please use the update endpoint to modify it.",
+        student: existingStudent,
+        hint: "Use PATCH /api/students/" + existingStudent._id,
       });
       return;
     }
 
+    // Create new student profile
     const student = await Student.create({
       userId: req.userId,
       name,
@@ -157,43 +119,45 @@ router.post("/", authenticate, async (req: Request, res: Response) => {
       image,
     });
 
-    res.status(201).json({ message: "Student created successfully", student });
+    res.status(201).json({ message: "Student profile created successfully", student });
   } catch (error) {
     res.status(500).json({ message: "Failed to create student", error });
   }
 });
 
-// Update student (owner student or superadmin)
+// Update student (owner can update their own profile, superadmin can update any)
 router.patch("/:id", authenticate, async (req: Request, res: Response) => {
   try {
     const student = await Student.findById(req.params.id);
     if (!student) {
-      res.status(404).json({ message: "Student not found" });
+      res.status(404).json({ message: "Student profile not found" });
       return;
     }
 
-    const isAuthorized =
-      req.userRole === "superadmin" ||
-      req.userId === student.userId?.toString();
+    // Check authorization: owner or superadmin
+    const isOwner = req.userId === student.userId?.toString();
+    const isSuperAdmin = req.userRole === "superadmin";
 
-    if (!isAuthorized) {
-      res.status(403).json({ message: "Access denied" });
+    if (!isOwner && !isSuperAdmin) {
+      res.status(403).json({ 
+        message: "Access denied. You can only update your own student profile." 
+      });
       return;
     }
 
-    // Apply updates directly via findByIdAndUpdate (most reliable approach)
+    // Apply updates directly via findByIdAndUpdate
     const updatedStudent = await Student.findByIdAndUpdate(
       req.params.id,
       { $set: req.body },
-      { new: true },
+      { new: true, runValidators: true },
     );
 
     res.json({
-      message: "Student updated successfully",
+      message: "Student profile updated successfully",
       student: updatedStudent,
     });
   } catch (error) {
-    res.status(500).json({ message: "Failed to update student", error });
+    res.status(500).json({ message: "Failed to update student profile", error });
   }
 });
 
