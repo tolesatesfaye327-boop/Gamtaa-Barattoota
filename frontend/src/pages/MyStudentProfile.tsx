@@ -143,7 +143,11 @@ export default function MyStudentProfile() {
   };
 
   const uploadImage = async (): Promise<string | null> => {
-    if (!imageFile) return formData.image || null;
+    // If no new image file selected, return existing image URL
+    if (!imageFile) {
+      return formData.image || null;
+    }
+    
     setUploadingImage(true);
     try {
       const formDataObj = new FormData();
@@ -151,6 +155,11 @@ export default function MyStudentProfile() {
       const response = await apiClient.post(
         "/students/upload-image",
         formDataObj,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
       return response.data.url;
     } catch (err: unknown) {
@@ -167,17 +176,24 @@ export default function MyStudentProfile() {
     setSaving(true);
     setError(null);
     setSuccess(null);
+    
     try {
-      // Upload image first if a file was selected
-      const uploadedUrl = await uploadImage();
-      if (imageFile && !uploadedUrl) {
-        // Image upload failed
-        setSaving(false);
-        return;
+      let finalImageUrl = formData.image || "";
+      
+      // Only upload image if user selected a new file
+      if (imageFile) {
+        const uploadedUrl = await uploadImage();
+        if (!uploadedUrl) {
+          // Image upload failed, stop submission
+          setSaving(false);
+          return;
+        }
+        finalImageUrl = uploadedUrl;
       }
+      
       const finalFormData = {
         ...formData,
-        image: uploadedUrl || formData.image || "",
+        image: finalImageUrl,
       };
 
       if (student && student._id) {
