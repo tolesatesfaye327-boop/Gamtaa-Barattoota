@@ -164,24 +164,6 @@ export default function StudentProfiles() {
             </div>
           )}
 
-          {/* Debug Info - Only visible when logged in (remove after testing) */}
-          {isAuthenticated && (
-            <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-500/30 text-blue-800 dark:text-blue-300 px-5 py-3 rounded-xl text-xs">
-              <p className="font-semibold mb-1">🔧 Debug Info:</p>
-              <p>• Logged in: {isAuthenticated ? "Yes" : "No"}</p>
-              <p>• Role: {user?.role || "None"}</p>
-              <p>• Is SuperAdmin: {isSuperAdmin ? "Yes" : "No"}</p>
-              <p>• Allow Everyone to Edit: {allowEveryoneToEdit ? "✅ YES (ON)" : "❌ NO (OFF)"}</p>
-              <p className="mt-2 text-[10px] opacity-70">
-                {isSuperAdmin 
-                  ? "You should see 3 buttons (View, Edit, Delete)" 
-                  : allowEveryoneToEdit 
-                    ? "You should see 2 buttons (View, Edit Profile)"
-                    : "You should see 1 button (View Detail)"}
-              </p>
-            </div>
-          )}
-
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/50 p-6 sm:p-8 mb-12">
             <div className="flex items-start gap-4">
               <span className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 shrink-0">
