@@ -422,7 +422,7 @@ export default function Layout() {
         className="xl:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200/80 dark:border-white/10 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-lg safe-bottom"
         aria-label="Primary mobile"
       >
-        <div className="grid grid-cols-5 h-16">
+        <div className="grid grid-cols-5 h-14">
           {[
             {
               to: "/",
@@ -450,14 +450,16 @@ export default function Layout() {
               <Link
                 key={item.to}
                 to={item.to}
-                className={`flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium ${
+                className={`flex flex-col items-center justify-center ${
                   active
                     ? "text-primary-600 dark:text-primary-400"
                     : "text-gray-500 dark:text-gray-400"
                 }`}
+                aria-label={item.label}
+                title={item.label}
               >
                 <svg
-                  className="w-5 h-5"
+                  className="w-6 h-6"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -469,21 +471,22 @@ export default function Layout() {
                     d={item.icon}
                   />
                 </svg>
-                {item.label}
               </Link>
             );
           })}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(true)}
-            className={`flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium ${
+            className={`flex flex-col items-center justify-center ${
               mobileMenuOpen
                 ? "text-primary-600 dark:text-primary-400"
                 : "text-gray-500 dark:text-gray-400"
             }`}
+            aria-label="More"
+            title="More"
           >
             <svg
-              className="w-5 h-5"
+              className="w-6 h-6"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -495,7 +498,6 @@ export default function Layout() {
                 d="M4 6h16M4 12h16M4 18h16"
               />
             </svg>
-            More
           </button>
         </div>
       </nav>

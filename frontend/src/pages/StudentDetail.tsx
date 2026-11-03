@@ -64,6 +64,9 @@ export default function StudentDetail() {
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState<StudentItem>(EMPTY_FORM);
   const [allowEveryoneToEdit, setAllowEveryoneToEdit] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     loadStudent();
@@ -148,9 +151,42 @@ export default function StudentDetail() {
       bio: student.bio || "",
       image: student.image || "",
     });
+    setImageFile(null);
+    setImagePreview(student.image || "");
     setEditing(true);
     setError(null);
     setSuccess(null);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile) return null;
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", imageFile);
+      const response = await apiClient.post("/students/upload-image", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data.url;
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      throw new Error(error.response?.data?.message || "Failed to upload image");
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const handleChange = (
@@ -168,6 +204,22 @@ export default function StudentDetail() {
     setError(null);
     setSuccess(null);
     try {
+      // Upload image if a new one was selected
+      let imageUrl = formData.image;
+      if (imageFile) {
+        try {
+          const uploadedUrl = await uploadImage();
+          if (uploadedUrl) {
+            imageUrl = uploadedUrl;
+          }
+        } catch (uploadError: any) {
+          setError(uploadError.message || "Failed to upload image");
+          setSaving(false);
+          return;
+        }
+      }
+
+      const updatedFormData = { ...formData, image: imageUrl };
       const isFromDb = student._id && isObjectId(student._id);
       let updatedStudentData;
 
@@ -175,22 +227,23 @@ export default function StudentDetail() {
         // DB-backed student — PATCH to update
         const response = await apiClient.patch(
           `/students/${student._id}`,
-          formData,
+          updatedFormData,
         );
         updatedStudentData = response.data.student || {
           ...student,
-          ...formData,
+          ...updatedFormData,
         };
       } else {
-        // Static data student — POST to create a new DB record, then PATCH to set userId
-        const createResponse = await apiClient.post("/students", formData);
+        // Static data student — POST to create a new DB record
+        const createResponse = await apiClient.post("/students", updatedFormData);
         const newStudent = createResponse.data.student;
-        updatedStudentData = { ...newStudent, ...formData };
+        updatedStudentData = { ...newStudent, ...updatedFormData };
       }
 
       setStudent(updatedStudentData);
       setSuccess("Profile updated successfully!");
       setEditing(false);
+      setImageFile(null);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       setError(
@@ -454,17 +507,58 @@ export default function StudentDetail() {
                     <option value="Miseensa">Miseensa</option>
                   </select>
                 </div>
-                <div>
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                    Image URL
+                    Profile Image
                   </label>
-                  <input
-                    type="text"
-                    name="image"
-                    value={formData.image || ""}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500/50"
-                  />
+                  <div className="flex items-start gap-4">
+                    {/* Image Preview */}
+                    <div className="shrink-0">
+                      {imagePreview ? (
+                        <div className="w-24 h-24 rounded-lg overflow-hidden border-2 border-gray-300 dark:border-gray-600">
+                          <img
+                            src={imagePreview}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-24 h-24 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center">
+                          <span className="text-2xl font-bold text-white">
+                            {getInitials(formData.name || "?")}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Upload Button */}
+                    <div className="flex-1">
+                      <input
+                        type="file"
+                        id="imageUpload"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
+                      <label
+                        htmlFor="imageUpload"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg cursor-pointer transition-colors border border-gray-300 dark:border-gray-600"
+                      >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                        </svg>
+                        {imageFile ? "Change Image" : "Upload Image"}
+                      </label>
+                      {imageFile && (
+                        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                          Selected: {imageFile.name}
+                        </p>
+                      )}
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        PNG, JPG, GIF up to 5MB
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div>
@@ -496,13 +590,13 @@ export default function StudentDetail() {
               <div className="flex gap-3 pt-2">
                 <button
                   type="submit"
-                  disabled={saving}
-                  className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2.5 rounded-lg transition disabled:opacity-50 font-medium flex items-center gap-2"
+                  disabled={saving || uploadingImage}
+                  className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2.5 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center gap-2"
                 >
-                  {saving && (
+                  {(saving || uploadingImage) && (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   )}
-                  {saving ? "Saving..." : "Save Changes"}
+                  {uploadingImage ? "Uploading Image..." : saving ? "Saving..." : "Save Changes"}
                 </button>
                 <button
                   type="button"
@@ -510,8 +604,11 @@ export default function StudentDetail() {
                     setEditing(false);
                     setError(null);
                     setSuccess(null);
+                    setImageFile(null);
+                    setImagePreview("");
                   }}
-                  className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2.5 rounded-lg transition font-medium"
+                  disabled={saving || uploadingImage}
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2.5 rounded-lg transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
