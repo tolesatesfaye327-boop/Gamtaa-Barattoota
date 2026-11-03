@@ -63,10 +63,23 @@ export default function StudentDetail() {
   const [success, setSuccess] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState<StudentItem>(EMPTY_FORM);
+  const [allowEveryoneToEdit, setAllowEveryoneToEdit] = useState(false);
 
   useEffect(() => {
     loadStudent();
+    loadSettings();
   }, [id]);
+
+  const loadSettings = async () => {
+    try {
+      const response = await apiClient.get("/settings");
+      const settings = response.data;
+      setAllowEveryoneToEdit(settings.allowEveryoneToEditStudentProfiles || false);
+    } catch (error) {
+      console.error("Failed to load settings:", error);
+      setAllowEveryoneToEdit(false);
+    }
+  };
 
   const loadStudent = async () => {
     setLoading(true);
@@ -105,6 +118,8 @@ export default function StudentDetail() {
     if (user.role === "superadmin") return true;
     // Admin can edit any
     if (user.role === "admin") return true;
+    // If global setting allows everyone to edit, any authenticated user can edit
+    if (allowEveryoneToEdit) return true;
     // Identity-based check: match name + email + phone
     const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
     const studentName = student.name.toLowerCase();
