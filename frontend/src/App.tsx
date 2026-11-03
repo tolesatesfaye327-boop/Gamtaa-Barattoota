@@ -55,6 +55,7 @@ import AdminPayments from "./pages/AdminPayments";
 import MyPayments from "./pages/MyPayments";
 import AdminLuckyDraw from "./pages/AdminLuckyDraw";
 import AdminPaymentSettings from "./pages/AdminPaymentSettings";
+import SuperAdminSettings from "./pages/SuperAdminSettings";
 import Developers from "./pages/Developers";
 
 const ADMIN_ROLES = ["superadmin", "admin"];
@@ -295,6 +296,14 @@ function AppRoutes() {
           element={
             <SuperAdminRoute>
               <SuperAdminUsers />
+            </SuperAdminRoute>
+          }
+        />
+        <Route
+          path="/superadmin/settings"
+          element={
+            <SuperAdminRoute>
+              <SuperAdminSettings />
             </SuperAdminRoute>
           }
         />

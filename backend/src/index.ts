@@ -21,6 +21,7 @@ import checkInRoutes from "./routes/checkin.js";
 import standaloneDrawRoutes from "./routes/standaloneDraw.js";
 import ticketProductRoutes from "./routes/ticketProducts.js";
 import paymentSettingsRoutes from "./routes/paymentSettings.js";
+import settingsRoutes from "./routes/settings.js";
 import errorHandler from "./middleware/errorHandler.js";
 
 dotenv.config();
@@ -107,6 +108,7 @@ app.use("/api/checkin", checkInRoutes);
 app.use("/api/standalone-draw", standaloneDrawRoutes);
 app.use("/api/ticket-products", ticketProductRoutes);
 app.use("/api/payment-settings", paymentSettingsRoutes);
+app.use("/api/settings", settingsRoutes);
 
 // Health check
 app.get("/api/health", (req: Request, res: Response) => {

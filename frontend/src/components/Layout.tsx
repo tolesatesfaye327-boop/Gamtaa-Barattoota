@@ -193,6 +193,7 @@ export default function Layout() {
       ? [
           { to: "/superadmin/users", label: "User Management" },
           { to: "/admin/students", label: "Students Management" },
+          { to: "/superadmin/settings", label: "⚙️ Settings" },
         ]
       : []),
   ];
@@ -860,13 +861,29 @@ function MobileMenu({
               Contact Messages
             </Link>
             {user.role === "superadmin" && (
-              <Link
-                to="/superadmin/users"
-                onClick={closeMenu}
-                className={linkClass("/superadmin/users")}
-              >
-                User Management
-              </Link>
+              <>
+                <Link
+                  to="/superadmin/users"
+                  onClick={closeMenu}
+                  className={linkClass("/superadmin/users")}
+                >
+                  User Management
+                </Link>
+                <Link
+                  to="/admin/students"
+                  onClick={closeMenu}
+                  className={linkClass("/admin/students")}
+                >
+                  Students Management
+                </Link>
+                <Link
+                  to="/superadmin/settings"
+                  onClick={closeMenu}
+                  className={linkClass("/superadmin/settings")}
+                >
+                  ⚙️ Settings
+                </Link>
+              </>
             )}
           </>
         )}

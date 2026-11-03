@@ -1,6 +1,7 @@
 import express, { Router, Request, Response } from "express";
 import multer from "multer";
 import { Student } from "../models/Student.js";
+import { Settings } from "../models/Settings.js";
 import { authenticate, authorize } from "../middleware/auth.js";
 import { profileStorage } from "../config/cloudinary.js";
 
@@ -125,7 +126,7 @@ router.post("/", authenticate, async (req: Request, res: Response) => {
   }
 });
 
-// Update student (owner can update their own profile, superadmin can update any)
+// Update student (owner can update their own profile, superadmin can update any, or everyone if permission enabled)
 router.patch("/:id", authenticate, async (req: Request, res: Response) => {
   try {
     const student = await Student.findById(req.params.id);
@@ -134,11 +135,17 @@ router.patch("/:id", authenticate, async (req: Request, res: Response) => {
       return;
     }
 
-    // Check authorization: owner or superadmin
+    // Check if "allow everyone to edit" setting is enabled
+    const allowEveryoneToEdit = await Settings.findOne({ 
+      key: "allowEveryoneToEditStudentProfiles" 
+    });
+
     const isOwner = req.userId === student.userId?.toString();
     const isSuperAdmin = req.userRole === "superadmin";
+    const isAllowedForEveryone = allowEveryoneToEdit?.value === true;
 
-    if (!isOwner && !isSuperAdmin) {
+    // Allow if: superadmin, owner, or setting is enabled
+    if (!isSuperAdmin && !isOwner && !isAllowedForEveryone) {
       res.status(403).json({ 
         message: "Access denied. You can only update your own student profile." 
       });
